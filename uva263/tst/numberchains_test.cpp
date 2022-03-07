@@ -1,18 +1,21 @@
 #include "gtest/gtest.h"
 #include "numberchains.h"
 
-TEST(get_str_digits, test1) {
-    //std::cout<<"test get_str_digits:123456-->6"<<std::endl;
+TEST(get_str_digits, digits_123456) {
     EXPECT_EQ (NumberChains::get_str_digits(123456),6); //通過
-    //std::cout<<"test get_str_digits:1234567-->7"<<std::endl;
-    EXPECT_EQ (NumberChains::get_str_digits(1234567),7); //通過
-    //std::cout<<"test get_str_digits:1234567-->1 failed"<<std::endl;
-    //EXPECT_EQ (NumberChains::get_str_digits(1234567),1); //failed
 }
 
-TEST(get_str_order_integer, test2) {
+TEST(get_str_digits, digits_123457) {
+    EXPECT_EQ (NumberChains::get_str_digits(1234567),7); //通過
+}
+
+TEST(get_str_order_integer, ascending_125634) {
     unsigned int arr[] = {1,2,5,6,3,4};
     EXPECT_EQ (NumberChains::get_str_order_integer(arr, 6, ASCENDING),123456); //通過
+}
+
+TEST(get_str_order_integer, descending_125634) {
+    unsigned int arr[] = {1,2,5,6,3,4};
     EXPECT_EQ (NumberChains::get_str_order_integer(arr, 6, DESCENDING),654321); //通過
 }
 
