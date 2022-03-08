@@ -7,8 +7,7 @@ link_directories($ENV{GMOCK_HOME}/mybuild $ENV{GMOCK_HOME}/gtest/mybuild)
 set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -g -Wall")
 
 set(sources 
-   uva263.cpp
-   test.cpp )
+   uva263.cpp)
 add_executable(test ${sources})
 
 target_link_libraries(test gmock)
