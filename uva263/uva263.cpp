@@ -30,7 +30,6 @@ void resolve_uva263(string &input_str) {
   int chain_len = 0;
   vector<int> v;
 
-  cout << endl;
   cout << "Original number was " << input_integer << endl;
   while (1) {
     input_str = to_string(input_integer);
@@ -58,6 +57,7 @@ int main(int argc, char **argv) {
     string input;
     while(cin>>input && input[0]!='0') {
         resolve_uva263(input);
+        cout << endl;
     }
     return 0;
 #else
