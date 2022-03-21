@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#define ONLINE_JUDGE
+//#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -38,7 +38,7 @@ void get_alphabets(string &input_str, vector<char> &v_alphabets) {
   }
 }
 
-void resolve_uva10008(string &input_str, ostream &os) {
+void solve_uva10008(string &input_str, ostream &os) {
   vector<char> v_alphabets;
   map<char, int> strmap;
   vector<pair<char, int>> vec;
@@ -49,7 +49,6 @@ void resolve_uva10008(string &input_str, ostream &os) {
 
   for (vector<pair<char, int>>::iterator it = vec.begin(); it != vec.end();
        ++it) {
-    // std::cout << it->first <<" " << it->second << std::endl;
     os << it->first << " " << it->second << endl;
   }
 
@@ -58,9 +57,9 @@ void resolve_uva10008(string &input_str, ostream &os) {
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   string line;
-  int i = 0;
   string input;
   string buf_str;
+  int i = 0;
 
   getline(is, line);
   for (i = 0; i < stoi(line); i++) {
@@ -68,7 +67,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     buf_str = buf_str.append(input);
   }
 
-  resolve_uva10008(buf_str, os);
+  solve_uva10008(buf_str, os);
 }
 
 int main(int argc, char **argv) {
@@ -81,7 +80,7 @@ int main(int argc, char **argv) {
 }
 
 #ifndef ONLINE_JUDGE
-TEST(uva10008, test_string) {
+TEST(uva10008, test_string1) {
   std::istringstream iss("3\nThis is a test.\nCount me 1 2 3 4 5.\nWow!!!! Is "
                          "this question easy?\n");
   std::ostringstream oss;
@@ -102,4 +101,38 @@ TEST(uva10008, test_string) {
             "Y 1\n",
             oss.str());
 }
+
+TEST(uva10008, test_string2) {
+  std::istringstream iss(
+      "4\nMother: \"How was school today, Patrick?\"\nPatrick: \"It was really "
+      "great mum! Today we made explosives!\"\nMother: \"Ooh, they do very "
+      "fancy stuff with you these days. And what will you do at school "
+      "tomorrow?\"\nPatrick: \"What school?\"\n");
+  std::ostringstream oss;
+  solve_uva_problem(iss, oss);
+  EXPECT_EQ("O 21\n"
+            "T 17\n"
+            "A 16\n"
+            "E 12\n"
+            "H 12\n"
+            "S 10\n"
+            "R 10\n"
+            "Y 9\n"
+            "W 9\n"
+            "L 8\n"
+            "C 7\n"
+            "I 7\n"
+            "D 7\n"
+            "M 6\n"
+            "P 4\n"
+            "U 4\n"
+            "K 3\n"
+            "F 3\n"
+            "N 2\n"
+            "V 2\n"
+            "G 1\n"
+            "X 1\n",
+            oss.str());
+}
+
 #endif
