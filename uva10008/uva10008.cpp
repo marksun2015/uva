@@ -1,3 +1,22 @@
+/*
+uva10008
+
+Input
+The first line of input contains a single positive decimal integer n. This is the number of lines which
+follow in the input. The next n lines will contain zero or more characters (possibly including whitespace).
+This is the text which must be analyzed.
+
+Output
+Each line of output contains a single uppercase letter, followed by a single space, then followed by a
+positive decimal integer. The integer indicates how many times the corresponding letter appears in
+the input text. Upper and lower case letters in the input are to be considered the same. No other
+characters must be counted. The output must be sorted in descending count order; that is, the most
+frequent letter is on the first output line, and the last line of output indicates the least frequent letter.
+If two letters have the same frequency, then the letter which comes first in the alphabet must appear
+first in the output. If a letter does not appear in the text, then that letter must not appear in the
+output.
+*/
+
 #include <algorithm>
 #include <cctype>
 #include <iostream>
@@ -6,7 +25,7 @@
 #include <string>
 #include <vector>
 
-//#define ONLINE_JUDGE
+#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -81,8 +100,11 @@ int main(int argc, char **argv) {
 
 #ifndef ONLINE_JUDGE
 TEST(uva10008, test_string1) {
-  std::istringstream iss("3\nThis is a test.\nCount me 1 2 3 4 5.\nWow!!!! Is "
-                         "this question easy?\n");
+  std::istringstream iss(
+      "3\n"
+      "This is a test.\n"
+      "Count me 1 2 3 4 5.\n"
+      "Wow!!!! Is this question easy?\n");
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
   EXPECT_EQ("S 7\n"
@@ -104,10 +126,11 @@ TEST(uva10008, test_string1) {
 
 TEST(uva10008, test_string2) {
   std::istringstream iss(
-      "4\nMother: \"How was school today, Patrick?\"\nPatrick: \"It was really "
-      "great mum! Today we made explosives!\"\nMother: \"Ooh, they do very "
-      "fancy stuff with you these days. And what will you do at school "
-      "tomorrow?\"\nPatrick: \"What school?\"\n");
+      "4\n"
+      "Mother: \"How was school today, Patrick?\"\n"
+      "Patrick: \"It was really great mum! Today we made explosives!\"\n"
+      "Mother: \"Ooh, they do very fancy stuff with you these days. And what will you do at school tomorrow?\"\n"
+      "Patrick: \"What school?\"\n");
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
   EXPECT_EQ("O 21\n"
