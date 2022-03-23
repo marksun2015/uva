@@ -38,10 +38,17 @@ uva10008
 
 using namespace std;
 
+bool custom_greater(const pair<char, int> &p1, const pair<char, int> &p2)
+{
+    return (p1.second > p2.second) ||
+        ((p1.second == p2.second) && (p1.first < p2.first));
+}
+
 void sort_strmap(map<char, int> &strmap, vector<pair<char, int>> &vec) {
   vec = {strmap.begin(), strmap.end()};
   sort(vec.begin(), vec.end(),
        [](auto x, auto y) { return x.second > y.second; });
+  //sort(vec.begin(),vec.end(), custom_greater);
 }
 
 void cal_frequency(vector<char> &v_alphabets, map<char, int> &strmap) {
