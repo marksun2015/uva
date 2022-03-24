@@ -40,20 +40,24 @@ using namespace std;
 
 bool custom_greater(const pair<char, int> &p1, const pair<char, int> &p2)
 {
-    return (p1.second > p2.second) ||
-        ((p1.second == p2.second) && (p1.first < p2.first));
+  return (p1.second > p2.second) ||
+    ((p1.second == p2.second) && (p1.first < p2.first));
 }
 
 void sort_strmap(map<char, int> &strmap, vector<pair<char, int>> &vec) {
   vec = {strmap.begin(), strmap.end()};
+  //transform (strmap.begin(), strmap.end(), std::back_inserter(vec),
+  //  [](const std::pair<char, int> &p) {
+  //    return p;
+  //});
+
   sort(vec.begin(), vec.end(),
-       [](auto x, auto y) { return x.second > y.second; });
+    [](auto x, auto y) { return x.second > y.second; });
   //sort(vec.begin(),vec.end(), custom_greater);
 }
 
 void cal_frequency(vector<char> &v_alphabets, map<char, int> &strmap) {
-  for (vector<char>::iterator it = v_alphabets.begin(); it != v_alphabets.end();
-       ++it) {
+  for (auto it = v_alphabets.begin(); it != v_alphabets.end(); ++it) {
     auto item = strmap.find(toupper(*it));
     if (item != strmap.end())
       item->second++;
@@ -63,7 +67,7 @@ void cal_frequency(vector<char> &v_alphabets, map<char, int> &strmap) {
 }
 
 void get_alphabets(string &input_str, vector<char> &v_alphabets) {
-  for (string::iterator it = input_str.begin(); it != input_str.end(); ++it) {
+  for (auto it = input_str.begin(); it != input_str.end(); ++it) {
     if (isalpha(*it))
       v_alphabets.push_back(*it);
   }
@@ -78,9 +82,9 @@ void solve_uva10008(string &input_str, ostream &os) {
   cal_frequency(v_alphabets, strmap);
   sort_strmap(strmap, vec);
 
-  for (vector<pair<char, int>>::iterator it = vec.begin(); it != vec.end();
-       ++it) {
+  for (auto it = vec.begin(); it != vec.end(); ++it) {
     os << it->first << " " << it->second << endl;
+    //cout << it->first << " " << it->second << endl;
   }
 
   return;
