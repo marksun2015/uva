@@ -39,8 +39,9 @@ uva10954
 #include <sstream>
 #include <string>
 #include <vector>
+#include <algorithm>
 
-//#define ONLINE_JUDGE
+#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -86,8 +87,8 @@ void cal_minimal_cost(std::string &input_str, int line_number,
   for (auto it = cost.begin(); it != cost.end(); ++it) {
     value += *it;
   }
-  // std::cout << value << std::endl;
-  os << value << std::endl;
+  std::cout << value << std::endl;
+  //os << value << std::endl;
   return;
 }
 
