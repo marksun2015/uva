@@ -56,8 +56,7 @@ unsigned int ReadNumbers(const std::string &s, std::vector<int> &v) {
   return v.size();
 }
 
-void cal_minimal_cost(std::string &input_str, int line_number,
-                      std::ostream &os) {
+void cal_minimal_cost(std::string &input_str, std::ostream &os) {
   int value = 0;
   int minvalue1, minvalue2;
   unsigned int len;
@@ -100,9 +99,10 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   while (1) {
     getline(is, line);
     line_number = stoi(line);
+
     if (line_number != 0) {
       getline(is, input);
-      cal_minimal_cost(input, line_number, os);
+      cal_minimal_cost(input, os);
     } else {
       break;
     }
