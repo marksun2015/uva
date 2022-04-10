@@ -7,7 +7,7 @@ add_definitions(-std=c++11)
 set(CMAKE_CXX_FLAGS "${CMAXE_CXX_FLAGS} -g -Wall")
 
 set(sources 
-   uva10919.cpp)
+   uva10191.cpp)
 add_executable(test ${sources})
 
 target_link_libraries(test gmock)
