@@ -86,17 +86,11 @@ uva10191
 
 using namespace std;
 
-#define ONLINE_JUDGE
+//#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
 #endif
-
-//struct Appointments {
-//  std::string start_time;
-//  std::string stop_time;
-  //std::string info_;
-//};
 
 struct Appointments {
   std::string start_str;
@@ -115,11 +109,10 @@ class Note {
 public:
   explicit Note();
   void add_appointment(std::string input);
-  void get_longest_nap(int number);
+  void get_longest_nap(int number, std::ostream &os);
   static bool cmp(Appointments x, Appointments y);
 
 private:
-  //std::vector<Appointments> appointment;
   std::vector<Nap> nap;
   std::vector<Appointments> appo_;
   std::vector<Appointments> occupy_time_;
@@ -163,9 +156,8 @@ occupy_time_: after adjust
 18:00(1080) 18:00(1080) 
 */
 
-void Note::get_longest_nap(int number) {
-  //std::string start_time("10:00");
-  std::string start_time;
+void Note::get_longest_nap(int number, std::ostream &os) {
+  std::string start_time("10:00");
   int logest_nap_time = 0;
   int max_stop_time = 600;
   int duration; 
@@ -213,12 +205,21 @@ void Note::get_longest_nap(int number) {
     }
   }
 
+#ifndef ONLINE_JUDGE
+  os << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
+  if (logest_nap_time < 60)   
+      os << logest_nap_time%60;
+  else 
+      os << logest_nap_time/60 << " hours and " << logest_nap_time%60;
+  os << " minutes." <<std::endl;
+#else
   std::cout << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
   if (logest_nap_time < 60)   
       std::cout << logest_nap_time%60;
   else 
       std::cout << logest_nap_time/60 << " hours and " << logest_nap_time%60;
   std::cout << " minutes." <<std::endl;
+#endif
 }
 
 void Note::add_appointment(std::string input) {
@@ -240,20 +241,19 @@ void Note::add_appointment(std::string input) {
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
-  std::string line;
+  std::string total_appo;
   std::string input;
   int appointments_times;
   int item = 1;
 
-#if 1
   while (1) {
-    getline(is, line);
+    getline(is, total_appo);
 
-    if (line.empty()) {
+    if (total_appo.empty()) {
       break;
     }
 
-    appointments_times = stoi(line);
+    appointments_times = stoi(total_appo);
 
     std::shared_ptr<Note> note = std::make_shared<Note>();
     {
@@ -264,11 +264,10 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
       }
       note->add_appointment("18:00 18:00 last");
 
-      note->get_longest_nap(item);
+      note->get_longest_nap(item, os);
       item++;
     }
   }
-#endif
 }
 
 int main(int argc, char **argv) {
@@ -281,19 +280,21 @@ int main(int argc, char **argv) {
 }
 
 #ifndef ONLINE_JUDGE
-TEST(uva10954, test_string1) {
-  std::istringstream iss("3\n"
-                         "6 5 4\n"
-                         "10\n"
-                         "9 5 48 2 4 5 6 3 5 4\n"
-                         "10\n"
-                         "3 4 5 4 7 2 3 8 4 5\n"
-                         "0\n");
+TEST(uva10191, test_string1) {
+  std::istringstream iss(
+          "8\n"
+          "12:22 16:25 Meeting with vatsal\n"
+          "12:06 15:23 Meeting with Morass\n"
+          "10:16 10:22 Meeting with Vinit\n"
+          "11:26 16:26 Meeting with try\n"
+          "10:11 12:30 Meeting with Morass\n"
+          "10:39 11:38 Meeting with vatsal\n"
+          "12:30 15:58 Meeting with Anjupiter\n"
+          "11:39 14:12 Meeting with try\n");
+
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
-  EXPECT_EQ("24\n"
-            "224\n"
-            "147\n",
+  EXPECT_EQ("Day #1: the longest nap starts at 16:26 and will last for 1 hours and 34 minutes.\n",
             oss.str());
 }
 #endif
