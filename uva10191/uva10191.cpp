@@ -98,7 +98,7 @@ using namespace std;
   //std::string info_;
 //};
 
-struct Occupy {
+struct Appointments {
   std::string start_str;
   std::string stop_str;
   int start_time;
@@ -116,26 +116,25 @@ public:
   explicit Note();
   void add_appointment(std::string input);
   void get_longest_nap(int number);
-  static bool cmp(Occupy x, Occupy y);
+  static bool cmp(Appointments x, Appointments y);
 
 private:
   //std::vector<Appointments> appointment;
   std::vector<Nap> nap;
-  std::vector<Occupy> occupy_time;
-  std::vector<Occupy> m_occupy_time;
+  std::vector<Appointments> appo_;
+  std::vector<Appointments> occupy_time_;
 };
 
 Note::Note() {}
 
-bool Note::cmp(Occupy x, Occupy y) {
+bool Note::cmp(Appointments x, Appointments y) {
     if(x.start_time != y.start_time)
         return x.start_time < y.start_time;
     return x.stop_time < y.stop_time;
 }
 
 /*
-original data
-8
+appo_: original data
 12:22 16:25 Meeting with vatsal
 12:06 15:23 Meeting with Morass
 10:16 10:22 Meeting with Vinit
@@ -145,19 +144,19 @@ original data
 12:30 15:58 Meeting with Anjupiter
 11:39 14:12 Meeting with try
 
-after sort 
+appo_: after sort 
 10:00(600) 10:00(600) 
 10:11(611) 12:30(750) 
-10:16(616) 10:22(622)   //622<750 rm 
-10:39(639) 11:38(698)   //698<750 rm
+10:16(616) 10:22(622)   //10:22(622) < 12:30(750) rm 
+10:39(639) 11:38(698)   //11:38(698) < 12:30(750) rm
 11:26(686) 16:26(986) 
-11:39(699) 14:12(852)   //852<986 rm
-12:06(726) 15:23(923)   //923<986 rm
-12:22(742) 16:25(985)   //985<986 rm
-12:30(750) 15:58(958)   //958<986 rm
+11:39(699) 14:12(852)   //14:12(852) < 16:26(986) rm
+12:06(726) 15:23(923)   //15:23(923) < 16:26(986) rm
+12:22(742) 16:25(985)   //16:25(985) < 16:26(986) rm
+12:30(750) 15:58(958)   //15:58(958) < 16:26(986) rm
 18:00(1080) 18:00(1080) 
 
-after remove
+occupy_time_: after adjust
 10:00(600) 10:00(600) 
 10:11(611) 12:30(750) 
 11:26(686) 16:26(986) 
@@ -165,47 +164,53 @@ after remove
 */
 
 void Note::get_longest_nap(int number) {
-  std::string start_time("10:00");
+  //std::string start_time("10:00");
+  std::string start_time;
   int logest_nap_time = 0;
   int max_stop_time = 600;
-  int temp;
+  int duration; 
 
-  std::sort(occupy_time.begin(), occupy_time.end(), cmp);
- 
-  for (auto it = occupy_time.begin(); it != occupy_time.end(); ++it) {
-      temp = 0;
+  /* step 1: sort */
+  std::sort(appo_.begin(), appo_.end(), cmp);
+
 #if 0  
+  for (auto it = appo_.begin(); it != appo_.end(); ++it) {
       std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
                         << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl;
+  }
 #endif
-      
-      if(it->stop_time > max_stop_time)
-        max_stop_time = it->stop_time;
 
-      if(it->stop_time < max_stop_time){
-          continue;
-      } 
+  /* step 2: adjust */
+  for (auto it = appo_.begin(); it != appo_.end(); ++it) {
+    duration = 0;
+      
+    if(it->stop_time > max_stop_time)
+      max_stop_time = it->stop_time;
+
+    if(it->stop_time < max_stop_time) {
+      continue;
+    } 
     
-      m_occupy_time.push_back({it->start_str, it->stop_str, it->start_time, it->stop_time});
+    occupy_time_.push_back({it->start_str, it->stop_str, it->start_time, it->stop_time});
   }
 
 #if 0  
-  std::cout << "----------------------" <<  std::endl;
-  for (auto it = m_occupy_time.begin(); it != m_occupy_time.end(); ++it) {
+  for (auto it = occupy_time_.begin(); it != occupy_time_.end(); ++it) {
       std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
                         << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl ;
   }
 #endif
 
-  for (auto it = m_occupy_time.begin()+1; it != m_occupy_time.end(); ++it) {
-      temp = (it)->start_time - (it-1)->stop_time;
-      if (temp < 0)
-          continue;
+  /* step 3: get nap time */
+  for (auto it = occupy_time_.begin()+1; it != occupy_time_.end(); ++it) {
+    duration = (it)->start_time - (it-1)->stop_time;
+    if (duration < 0)
+      continue;
 
-      if(temp > logest_nap_time){
-          logest_nap_time = temp;
-          start_time = (it-1)->stop_str;
-      }
+    if(duration > logest_nap_time){
+      logest_nap_time = duration;
+      start_time = (it-1)->stop_str;
+    }
   }
 
   std::cout << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
@@ -227,10 +232,11 @@ void Note::add_appointment(std::string input) {
   std::string stop_time = input.substr(0, pos);
   input.erase(0, pos + 1);
   
-  occupy_time.push_back({start_time,
-                         stop_time,
-                         stoi(start_time.substr(0, 2))*60 + stoi(start_time.substr(3, 2)),  
-                         stoi(stop_time.substr(0, 2))*60 + stoi(stop_time.substr(3, 2))});
+  //ex: 10:20 --> 10*60 + 20 = 620
+  appo_.push_back({start_time,
+                   stop_time,
+                   stoi(start_time.substr(0, 2))*60 + stoi(start_time.substr(3, 2)),  
+                   stoi(stop_time.substr(0, 2))*60 + stoi(stop_time.substr(3, 2))});
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
@@ -249,16 +255,16 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
 
     appointments_times = stoi(line);
 
-    std::shared_ptr<Note> apo_ = std::make_shared<Note>();
+    std::shared_ptr<Note> note = std::make_shared<Note>();
     {
-      apo_->add_appointment("10:00 10:00 first");
+      note->add_appointment("10:00 10:00 first");
       for (int i = 0; i < appointments_times; i++) {
         getline(is, input);
-        apo_->add_appointment(input);
+        note->add_appointment(input);
       }
-      apo_->add_appointment("18:00 18:00 last");
+      note->add_appointment("18:00 18:00 last");
 
-      apo_->get_longest_nap(item);
+      note->get_longest_nap(item);
       item++;
     }
   }
@@ -288,34 +294,6 @@ TEST(uva10954, test_string1) {
   EXPECT_EQ("24\n"
             "224\n"
             "147\n",
-            oss.str());
-}
-
-TEST(uva10954, test_string2) {
-  std::istringstream iss("8\n"
-                         "4 4 6 6 8 8 10 10\n"
-                         "8\n"
-                         "4 6 6 7 7 8 8 9\n"
-                         "8\n"
-                         "3 4 6 6 6 8 8 9\n"
-                         "8\n"
-                         "3 4 5 5 5 5 8 9\n"
-                         "2\n"
-                         "99999 0\n"
-                         "4\n"
-                         "99997 49999 49999 49999\n"
-                         "4\n"
-                         "49999 99998 49999 49999\n"
-                         "0\n");
-  std::ostringstream oss;
-  solve_uva_problem(iss, oss);
-  EXPECT_EQ("166\n"
-            "165\n"
-            "148\n"
-            "130\n"
-            "99999\n"
-            "499988\n"
-            "499990\n",
             oss.str());
 }
 #endif
