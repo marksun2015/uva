@@ -99,21 +99,17 @@ struct Appointments {
   int stop_time;
 };
 
-struct Nap {
-  std::string nap_start_time;
-  int nap_hour;
-  int nap_minute;
-};
-
 class Note {
 public:
   explicit Note();
+  ~Note() = default;
+
+public:
+  static bool cmp(Appointments x, Appointments y);
   void add_appointment(std::string input);
   void get_longest_nap(int number, std::ostream &os);
-  static bool cmp(Appointments x, Appointments y);
 
 private:
-  std::vector<Nap> nap;
   std::vector<Appointments> appo_;
   std::vector<Appointments> occupy_time_;
 };
@@ -127,7 +123,7 @@ bool Note::cmp(Appointments x, Appointments y) {
 }
 
 /*
-appo_: original data
+original data
 12:22 16:25 Meeting with vatsal
 12:06 15:23 Meeting with Morass
 10:16 10:22 Meeting with Vinit
@@ -137,6 +133,18 @@ appo_: original data
 12:30 15:58 Meeting with Anjupiter
 11:39 14:12 Meeting with try
 
+appo_: input data
+10:00(600) 10:00(600) //code complete
+12:22(742) 16:25(985) 
+12:06(726) 15:23(923) 
+10:16(616) 10:22(622) 
+11:26(686) 16:26(986) 
+10:11(611) 12:30(750) 
+10:39(639) 11:38(698) 
+12:30(750) 15:58(958) 
+11:39(699) 14:12(852) 
+18:00(1080) 18:00(1080) //code complete
+   
 appo_: after sort 
 10:00(600) 10:00(600) 
 10:11(611) 12:30(750) 
@@ -155,7 +163,6 @@ occupy_time_: after adjust
 11:26(686) 16:26(986) 
 18:00(1080) 18:00(1080) 
 */
-
 void Note::get_longest_nap(int number, std::ostream &os) {
   std::string start_time("10:00");
   int logest_nap_time = 0;
@@ -193,7 +200,7 @@ void Note::get_longest_nap(int number, std::ostream &os) {
   }
 #endif
 
-  /* step 3: get nap time */
+  /* step 3: get logest nap time */
   for (auto it = occupy_time_.begin()+1; it != occupy_time_.end(); ++it) {
     duration = (it)->start_time - (it-1)->stop_time;
     if (duration < 0)
@@ -241,29 +248,25 @@ void Note::add_appointment(std::string input) {
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
-  std::string total_appo;
+  std::string appointments_times;
   std::string input;
-  int appointments_times;
   int item = 1;
 
   while (1) {
-    getline(is, total_appo);
+    getline(is, appointments_times);
 
-    if (total_appo.empty()) {
+    if (appointments_times.empty()) {
       break;
     }
-
-    appointments_times = stoi(total_appo);
 
     std::shared_ptr<Note> note = std::make_shared<Note>();
     {
       note->add_appointment("10:00 10:00 first");
-      for (int i = 0; i < appointments_times; i++) {
+      for (int i = 0; i < stoi(appointments_times); i++) {
         getline(is, input);
         note->add_appointment(input);
       }
       note->add_appointment("18:00 18:00 last");
-
       note->get_longest_nap(item, os);
       item++;
     }
