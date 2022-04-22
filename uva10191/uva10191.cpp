@@ -92,45 +92,40 @@ using namespace std;
 #include <gmock/gmock.h>
 #endif
 
-struct Appointments {
-  std::string start_time;
-  std::string stop_time;
+//struct Appointments {
+//  std::string start_time;
+//  std::string stop_time;
   //std::string info_;
-};
+//};
 
 struct Occupy {
   std::string start_str;
   std::string stop_str;
   int start_time;
   int stop_time;
-  //std::string info_;
 };
 
-struct Snap {
-  std::string snap_start_time;
-  int snap_hour;
-  int snap_minute;
+struct Nap {
+  std::string nap_start_time;
+  int nap_hour;
+  int nap_minute;
 };
 
 class Note {
 public:
   explicit Note();
   void add_appointment(std::string input);
-  int modify_appointment(std::string start_time, std::string stop_time);
-  void modify_occupy_time(int start_time, int stop_time);
-  void sort_occupy_time(int number);
+  void get_longest_nap(int number);
   static bool cmp(Occupy x, Occupy y);
-  void show_appointment();
 
 private:
-  std::vector<Appointments> appointment;
-  std::vector<Snap> snap;
+  //std::vector<Appointments> appointment;
+  std::vector<Nap> nap;
   std::vector<Occupy> occupy_time;
   std::vector<Occupy> m_occupy_time;
 };
 
 Note::Note() {}
-
 
 bool Note::cmp(Occupy x, Occupy y) {
     if(x.start_time != y.start_time)
@@ -169,9 +164,9 @@ after remove
 18:00(1080) 18:00(1080) 
 */
 
-void Note::sort_occupy_time(int number) {
+void Note::get_longest_nap(int number) {
   std::string start_time("10:00");
-  int logest_snap_time = 0;
+  int logest_nap_time = 0;
   int max_stop_time = 600;
   int temp;
 
@@ -179,8 +174,10 @@ void Note::sort_occupy_time(int number) {
  
   for (auto it = occupy_time.begin(); it != occupy_time.end(); ++it) {
       temp = 0;
-      //std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
-      //                  << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl;
+#if 0  
+      std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
+                        << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl;
+#endif
       
       if(it->stop_time > max_stop_time)
         max_stop_time = it->stop_time;
@@ -205,17 +202,17 @@ void Note::sort_occupy_time(int number) {
       if (temp < 0)
           continue;
 
-      if(temp > logest_snap_time){
-          logest_snap_time = temp;
+      if(temp > logest_nap_time){
+          logest_nap_time = temp;
           start_time = (it-1)->stop_str;
       }
   }
 
   std::cout << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
-  if (logest_snap_time < 60)   
-      std::cout << logest_snap_time%60;
+  if (logest_nap_time < 60)   
+      std::cout << logest_nap_time%60;
   else 
-      std::cout << logest_snap_time/60 << " hours and " << logest_snap_time%60;
+      std::cout << logest_nap_time/60 << " hours and " << logest_nap_time%60;
   std::cout << " minutes." <<std::endl;
 }
 
@@ -239,7 +236,7 @@ void Note::add_appointment(std::string input) {
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string line;
   std::string input;
-  int line_number;
+  int appointments_times;
   int item = 1;
 
 #if 1
@@ -250,18 +247,18 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
       break;
     }
 
-    line_number = stoi(line);
+    appointments_times = stoi(line);
 
     std::shared_ptr<Note> apo_ = std::make_shared<Note>();
     {
       apo_->add_appointment("10:00 10:00 first");
-      for (int i = 0; i < line_number; i++) {
+      for (int i = 0; i < appointments_times; i++) {
         getline(is, input);
         apo_->add_appointment(input);
       }
       apo_->add_appointment("18:00 18:00 last");
 
-      apo_->sort_occupy_time(item);
+      apo_->get_longest_nap(item);
       item++;
     }
   }
