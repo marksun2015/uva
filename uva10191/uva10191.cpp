@@ -198,21 +198,12 @@ void Note::get_longest_nap(int number, std::ostream &os) {
     }
   }
 
-#ifndef ONLINE_JUDGE
   os << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
   if (logest_nap_time < 60)   
       os << logest_nap_time%60;
   else 
       os << logest_nap_time/60 << " hours and " << logest_nap_time%60;
   os << " minutes." <<std::endl;
-#else
-  std::cout << "Day #"<<number<<": the longest nap starts at "<< start_time <<" and will last for ";
-  if (logest_nap_time < 60)   
-      std::cout << logest_nap_time%60;
-  else 
-      std::cout << logest_nap_time/60 << " hours and " << logest_nap_time%60;
-  std::cout << " minutes." <<std::endl;
-#endif
 }
 
 void Note::add_appointment(std::string input) {
@@ -254,6 +245,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
       }
       note->add_appointment("18:00 18:00 last");
       note->get_longest_nap(item, os);
+
       item++;
     }
   }
