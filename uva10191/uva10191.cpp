@@ -86,7 +86,7 @@ uva10191
 
 using namespace std;
 
-//#define ONLINE_JUDGE
+#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -172,13 +172,6 @@ void Note::get_longest_nap(int number, std::ostream &os) {
   /* step 1: sort */
   std::sort(appo_.begin(), appo_.end(), cmp);
 
-#if 0  
-  for (auto it = appo_.begin(); it != appo_.end(); ++it) {
-      std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
-                        << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl;
-  }
-#endif
-
   /* step 2: adjust */
   for (auto it = appo_.begin(); it != appo_.end(); ++it) {
     duration = 0;
@@ -192,13 +185,6 @@ void Note::get_longest_nap(int number, std::ostream &os) {
     
     occupy_time_.push_back({it->start_str, it->stop_str, it->start_time, it->stop_time});
   }
-
-#if 0  
-  for (auto it = occupy_time_.begin(); it != occupy_time_.end(); ++it) {
-      std::cout << ">>" << it->start_str << "(" << it->start_time << ")" << " " 
-                        << it->stop_str << "(" << it->stop_time << ")" << " " <<std::endl ;
-  }
-#endif
 
   /* step 3: get logest nap time */
   for (auto it = occupy_time_.begin()+1; it != occupy_time_.end(); ++it) {
