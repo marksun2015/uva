@@ -56,6 +56,7 @@ uva131
 #include <string>
 #include <queue>
 #include <stack>
+#include <memory>
 
 using namespace std;
 
@@ -65,63 +66,126 @@ using namespace std;
 #include <gmock/gmock.h>
 #endif
 
-void check_possible(int number, std::string output, std::ostream &os) {
-  std::stack<int> station;
-  std::queue<int> train_in;
-  std::queue<int> train_out;
-  int failed = 0;
-  int pos = 0;
-  
-  for(int i=1; i<=number; i++)
-    train_in.push(i);
 
-  for(int i=1; i<=number; i++) {
-    pos = output.find(' ');
-    //std::cout << " "  << stoi(output.substr(0, pos));
-    train_out.push(stoi(output.substr(0, pos)));
-    output.erase(0, pos + 1);
+/*
+ *
+ *    "straight-flush"
+ *    "four-of-a-kind" 
+ *    "full-house"   
+ *    "flush"   
+ *    "straight"   
+ *    "three-of-a-kind"  
+ *    "two-pairs"  
+ *    "one-pair"   
+ *    "highest-card" 
+ *   A2345 < 23456 < 34567 < ... < TJQKA  
+ */
+struct Card {
+    int value;
+    int color;
+};
+
+class Poker {
+  public:
+    explicit Poker(std::string input);
+    ~Poker()=default;
+    
+    void changeCards(int change_card_numbers);
+
+  private:
+    std::queue <std::string> hand_card_;
+    std::queue <std::string> desk_card_;
+    std::vector <Card> card_in_hand_;
+    std::vector <Card> card_in_desk_;
+};
+
+Poker::Poker(std::string input) {
+
+  int pos;
+  //std::cout << "Hand:";
+  for (int i=0; i<5; i++) {
+    pos = input.find(' ');
+    //std::cout << " "  << input.substr(0, pos);
+    hand_card_.push(input.substr(0, pos));  
+    input.erase (0, pos+1);
   }
-  //std::cout << std::endl;
-
-  while(!train_in.empty() || !station.empty()) 
-  {
-    if ((!train_in.empty()) && (train_out.front() == train_in.front())) {
-      train_out.pop();
-      train_in.pop();
-    } else if ((!station.empty()) && (train_out.front() == station.top())) {
-      train_out.pop();
-      station.pop();
-    } 
-    else {
-      if(!train_in.empty()){
-        station.push(train_in.front());
-        train_in.pop();
-      } else {
-        failed = 1;
-        break;
-      }
-    } 
-  } 
-
-  if(failed)
-    os << "No" << std::endl; 
-  else
-    os << "Yes" << std::endl;
+  
+  std::cout << " Desk:";
+  for (int i=0; i<5; i++) {
+    pos = input.find(' ');
+    std::cout << " "  << input.substr(0, pos);
+    desk_card_.push(input.substr(0, pos));  
+    input.erase (0, pos+1);
+  }
 }
+
+void Poker::changeCards(int change_card_numbers){
+  //int pos = 0;
+  std::queue <std::string> possible_card;
+
+  //possible_card =  
+
+}
+
+#if 0
+void listCards(std::string input, std::string output, std::ostream &os) {
+  int pos = 0;
+  std::queue <std::string> hand;
+  std::queue <std::string> deck;
+
+  std::cout << "Hand:";
+  for (int i=0; i<5; i++) {
+    pos = input.find(' ');
+    std::cout << " "  << input.substr(0, pos);
+    hand.push(input.substr(0, pos));  
+    input.erase (0, pos+1);
+  }
+  
+  std::cout << " Desk:";
+  for (int i=0; i<5; i++) {
+    pos = input.find(' ');
+    std::cout << " "  << input.substr(0, pos);
+    hand.push(input.substr(0, pos));  
+    input.erase (0, pos+1);
+  }
+ 
+  //if(failed)
+  //  os << "No" << std::endl; 
+  //else
+  //  os << "Yes" << std::endl;
+}
+#endif
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   std::string output;
-  int train_number;
+  int i,j;
 
   while (getline(is, input)) {
  
-    if (input.empty()) {
-      break;
-    }
+  if (input.empty()) {
+    break;
+  }
 
-    std::cout << "input "  << input << std::endl; 
-    //check_possible(train_number, output, os);
+  os << "Hand:";
+  for (i = 0; i < 5; i++) {
+    os << " "  << input.substr(0+i*3, 2);
+  }
+  
+  os << " Desk:";
+  for (j=i; j < 10; j++) {
+    os << " "  << input.substr(0+j*3, 2);
+  }
+
+  std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
+  {
+        //for(int i=0 ;i<=5 ;i++)
+        //    card->changeCards(i);
+  }
+    //std::cout << "input "  << input << std::endl; 
+    //listCards(input, output, os);
+   // maximizeValue();  
+    std::cout << std::endl;
 
   }
 }
@@ -151,5 +215,58 @@ TEST(uva514, test_string1) {
             "Yes\n"
             "\n",
             oss.str());
+}
+#endif
+
+#if 0
+#include <iostream>
+#include <vector>
+
+using namespace std;
+
+vector<int> hand_card;
+vector<int> possible_card;
+
+void pretty_print(const vector<int>& v, int number) {
+  static int count = 0;
+  //cout << "possible_card: " << (++count) << " ";  // << ": [ ";
+  for (int i = 0; i < v.size(); ++i) 
+  { 
+      cout << v[i] << " "; 
+  }
+
+  for (int i = 0; i < number; i++) {
+      cout << "c " ; 
+  }
+  //cout << "] " << endl;
+  cout << endl;
+}
+
+//ref: https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c  
+void comb_max_value(int offset, int k, int number) {
+  if (k == 0) {
+    pretty_print(possible_card,number);
+    return;
+  }
+
+  for (int i = offset; i <= hand_card.size() - k; i++) {
+    possible_card.push_back(hand_card[i]);
+    comb_max_value(i+1, k-1, number);
+    possible_card.pop_back();
+  }
+}
+
+int main() {
+  int n = 5, k = 3;
+
+  for (int i = 1; i <= n; i++) {
+      hand_card.push_back(i);
+  
+  }
+
+  for (int k = 0; k <= 5; k++) { 
+      comb_max_value(0, k, 5-k);
+  }
+  return 0;
 }
 #endif
