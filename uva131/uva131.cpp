@@ -147,10 +147,11 @@ void Poker::init_handcard(int number) {
 void Poker::CheckMaxValue() {
 
   //std::cout << card_possible_.size() << std::endl;
-  //for (int i = 0; i < card_possible_.size(); i++) {
-      //std::cout << " v: " << card_possible_[i].value << " c: " << card_possible_[i].color ;
-  //}
-  //std::cout << std::endl;
+  for (int i = 0; i < card_possible_.size(); i++) {
+      std::cout << " v: " << card_possible_[i].value << " c: " << card_possible_[i].color ;
+  }
+  std::cout << std::endl;
+  card_possible_.clear();
 }
 
 void Poker::ChangeCards(const vector<int>& hand_number, int number) {
@@ -162,7 +163,8 @@ void Poker::ChangeCards(const vector<int>& hand_number, int number) {
   {
      //card_possible_.push_back(card_in_hand_[hand_number[i]]);
      card_node = card_in_hand_[hand_number[i]];
-     std::cout << " v: " << card_node.value << " c: " << card_node.color <<", " ;
+     card_possible_.push_back(card_node);
+     //std::cout << " v: " << card_node.value << " c: " << card_node.color <<", " ;
      //std::cout << " v: " << card_in_hand_[hand_number[i]].value << " c: " << card_in_hand_[hand_number[i]].color <<", " ;
   }
 
@@ -171,9 +173,10 @@ void Poker::ChangeCards(const vector<int>& hand_number, int number) {
   for (int i = 0; i < number; i++) {
      //card_possible_.push_back(card_in_desk_[hand_number[i]]);
       card_node = card_in_desk_[i];
-      std::cout << " v: " << card_node.value << " c: " << card_node.color << ", " ;
+      card_possible_.push_back(card_node);
+      //std::cout << " v: " << card_node.value << " c: " << card_node.color << ", " ;
   }
-  cout << endl;
+  //cout << endl;
 }
 
 void Poker::CombMaxValue(int offset, int k, int number) {
