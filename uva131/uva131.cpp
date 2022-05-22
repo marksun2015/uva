@@ -80,7 +80,7 @@ using namespace std;
  *    "highest-card" 
  *   A2345 < 23456 < 34567 < ... < TJQKA  
  */
-struct Card {
+struct CardNode {
     int value;
     int color;
 };
@@ -90,71 +90,191 @@ class Poker {
     explicit Poker(std::string input);
     ~Poker()=default;
     
-    void changeCards(int change_card_numbers);
+    //void changeCards(int change_card_numbers);
+    void InitCards(std::string node);
+    CardNode MappingCards(std::string node);
+    void CombMaxValue(int offset, int k, int number);
+    void changeCards(const vector<int>& v, int number);
+    void init_handcard(int number);
 
   private:
     std::queue <std::string> hand_card_;
     std::queue <std::string> desk_card_;
-    std::vector <Card> card_in_hand_;
-    std::vector <Card> card_in_desk_;
+    std::vector <CardNode> card_in_hand_;
+    std::vector <CardNode> card_in_desk_;
+
+    std::vector <int> hand_card;
+    std::vector <int> possible_card;
 };
 
 Poker::Poker(std::string input) {
-
+#if 0
   int pos;
+  //Card temp;
   //std::cout << "Hand:";
   for (int i=0; i<5; i++) {
     pos = input.find(' ');
     //std::cout << " "  << input.substr(0, pos);
     hand_card_.push(input.substr(0, pos));  
+
+    //temp.value = stoi(input.substr(0, 1));
+    //temp.color = stoi(input.substr(1, 1));
+    //std::cout << "value "  << temp.value << "color: " << temp.color << std::endl;
+    //std::cout << "value "  << input.substr(0, 1) << "  color: " << input.substr(1, 1) << std::endl;
+    //card_in_hand_.push_back(temp);
+
     input.erase (0, pos+1);
   }
   
-  std::cout << " Desk:";
+
+  //std::cout << " Desk:";
   for (int i=0; i<5; i++) {
     pos = input.find(' ');
-    std::cout << " "  << input.substr(0, pos);
+    //std::cout << " "  << input.substr(0, pos);
     desk_card_.push(input.substr(0, pos));  
     input.erase (0, pos+1);
   }
+#endif
 }
 
-void Poker::changeCards(int change_card_numbers){
+//void Poker::changeCards(int change_card_numbers){
   //int pos = 0;
-  std::queue <std::string> possible_card;
+//  std::queue <std::string> possible_card;
 
   //possible_card =  
 
+//}
+void Poker::init_handcard(int number) {
+  for (int i = 0; i < number; i++) 
+      hand_card.push_back(i);
 }
 
-#if 0
-void listCards(std::string input, std::string output, std::ostream &os) {
-  int pos = 0;
-  std::queue <std::string> hand;
-  std::queue <std::string> deck;
+void Poker::changeCards(const vector<int>& v, int number) {
+  static int count = 0;
+  CardNode card_node;
+  //cout << "possible_card: " << (++count) << " ";  // << ": [ ";
+  for (int i = 0; i < v.size(); i++) 
+  { 
+     // std::cout<<"size: " << card_in_hand_.size() << endl;
+      //cout << v[i] << " "; 
+      card_node = card_in_hand_[v[i]];
+      std::cout << " v: " << card_node.value << " c: " << card_node.color ;
+  }
 
-  std::cout << "Hand:";
+  std::cout << " | " ;
+
+  for (int i = 0; i < number; i++) {
+      //cout << "c " ; 
+      card_node = card_in_desk_[i];
+      std::cout << " v: " << card_node.value << " c: " << card_node.color ;
+  }
+  //cout << "] " << endl;
+  cout << endl;
+}
+
+void Poker::CombMaxValue(int offset, int k, int number) {
+  if (k == 0) {
+    changeCards(possible_card,number);
+    return;
+  }
+
+  for (int i = offset; i <= hand_card.size() - k; i++) {
+    possible_card.push_back(hand_card[i]);
+    CombMaxValue(i+1, k-1, number);
+    possible_card.pop_back();
+  }
+}
+
+
+CardNode Poker::MappingCards(std::string node) {
+    const char *value = node.substr(0,1).c_str();
+    int ret;
+    CardNode card_node;
+    //std::cout << " v: " << *value;
+    switch (*value){
+        case 'T':
+            card_node.value = 10;
+            //ret = 10;                
+            break;
+        case 'J':
+            card_node.value = 11;
+            //ret = 11;                
+            break;
+        case 'Q':
+            card_node.value = 12;
+            //ret = 12;                
+            break;
+        case 'K':
+            card_node.value = 13;
+            //ret = 13;                
+            break;
+        case 'A':
+            card_node.value = 14;
+            //ret = 14;                
+            break;
+        default:
+            //ret = stoi(*value);
+            card_node.value = (int)(*value) - '0';
+            break;
+    }
+
+    const char *color = node.substr(1,1).c_str();;
+    //std::cout << " c: " << *color << std::endl;
+    switch (*color){
+        case 'C':
+            card_node.color = 1;
+            break;
+        case 'D':
+            card_node.color = 2;
+            break;
+        case 'H':
+            card_node.color = 3;
+            break;
+        case 'S':
+            card_node.color = 4;
+            break;
+    }
+    
+    return card_node;
+}
+
+void Poker::InitCards(std::string input) {
+  int pos;
+  //std::cout << "Hand:";
+  CardNode card_node;
   for (int i=0; i<5; i++) {
     pos = input.find(' ');
-    std::cout << " "  << input.substr(0, pos);
-    hand.push(input.substr(0, pos));  
+    //std::cout << " "  << input.substr(0, pos);
+    hand_card_.push(input.substr(0, pos));  
+
+    card_node = MappingCards(input.substr(0, 2));
+    //std::cout << "value "  << card_node.value << " color: " << card_node.color << std::endl;
+
+    //temp.value = stoi(input.substr(0, 1));
+    //temp.color = stoi(input.substr(1, 1));
+    //std::cout << "value "  << temp.value << "color: " << temp.color << std::endl;
+    //std::cout << "value "  << input.substr(0, 1) << "  color: " << input.substr(1, 1) << std::endl;
+    card_in_hand_.push_back(card_node);
+
     input.erase (0, pos+1);
   }
   
-  std::cout << " Desk:";
+
+  //std::cout << " Desk:";
   for (int i=0; i<5; i++) {
     pos = input.find(' ');
-    std::cout << " "  << input.substr(0, pos);
-    hand.push(input.substr(0, pos));  
+    //std::cout << " "  << input.substr(0, pos);
+    desk_card_.push(input.substr(0, pos));  
+    
+    card_node = MappingCards(input.substr(0, 2));
+    card_in_desk_.push_back(card_node);
+
     input.erase (0, pos+1);
   }
- 
-  //if(failed)
-  //  os << "No" << std::endl; 
-  //else
-  //  os << "Yes" << std::endl;
+
+    std::cout << std::endl;
+
 }
-#endif
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
@@ -167,6 +287,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     break;
   }
 
+#if 0
   os << "Hand:";
   for (i = 0; i < 5; i++) {
     os << " "  << input.substr(0+i*3, 2);
@@ -176,11 +297,15 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   for (j=i; j < 10; j++) {
     os << " "  << input.substr(0+j*3, 2);
   }
+#endif
 
   std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
   {
-        //for(int i=0 ;i<=5 ;i++)
-        //    card->changeCards(i);
+    poker->InitCards(input);
+    poker->init_handcard(5);
+
+    for(i=0 ;i<=5 ;i++)
+      poker->CombMaxValue(0, i, 5-i);
   }
     //std::cout << "input "  << input << std::endl; 
     //listCards(input, output, os);
