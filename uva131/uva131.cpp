@@ -90,21 +90,23 @@ class Poker {
     explicit Poker(std::string input);
     ~Poker()=default;
     
-    //void changeCards(int change_card_numbers);
     void InitCards(std::string node);
-    CardNode MappingCards(std::string node);
     void CombMaxValue(int offset, int k, int number);
-    void changeCards(const vector<int>& v, int number);
+    CardNode MappingCards(std::string node);
+    void ChangeCards(const vector<int>& hand_number, int number);
+    void CheckMaxValue();
     void init_handcard(int number);
 
   private:
     std::queue <std::string> hand_card_;
     std::queue <std::string> desk_card_;
+
     std::vector <CardNode> card_in_hand_;
     std::vector <CardNode> card_in_desk_;
+    std::vector <CardNode> card_possible_;
 
-    std::vector <int> hand_card;
-    std::vector <int> possible_card;
+    std::vector <int> card_position_;
+    std::vector <int> combination_;
 };
 
 Poker::Poker(std::string input) {
@@ -137,51 +139,57 @@ Poker::Poker(std::string input) {
 #endif
 }
 
-//void Poker::changeCards(int change_card_numbers){
-  //int pos = 0;
-//  std::queue <std::string> possible_card;
-
-  //possible_card =  
-
-//}
 void Poker::init_handcard(int number) {
   for (int i = 0; i < number; i++) 
-      hand_card.push_back(i);
+      card_position_.push_back(i);
 }
 
-void Poker::changeCards(const vector<int>& v, int number) {
-  static int count = 0;
+void Poker::CheckMaxValue() {
+
+  //std::cout << card_possible_.size() << std::endl;
+  //for (int i = 0; i < card_possible_.size(); i++) {
+      //std::cout << " v: " << card_possible_[i].value << " c: " << card_possible_[i].color ;
+  //}
+  //std::cout << std::endl;
+}
+
+void Poker::ChangeCards(const vector<int>& hand_number, int number) {
+  //static int count = 0;
   CardNode card_node;
-  //cout << "possible_card: " << (++count) << " ";  // << ": [ ";
-  for (int i = 0; i < v.size(); i++) 
-  { 
-     // std::cout<<"size: " << card_in_hand_.size() << endl;
-      //cout << v[i] << " "; 
-      card_node = card_in_hand_[v[i]];
-      std::cout << " v: " << card_node.value << " c: " << card_node.color ;
+  //CardNode card_possible;
+
+  for (int i = 0; i < hand_number.size(); i++) 
+  {
+     //card_possible_.push_back(card_in_hand_[hand_number[i]]);
+     card_node = card_in_hand_[hand_number[i]];
+     std::cout << " v: " << card_node.value << " c: " << card_node.color <<", " ;
+     //std::cout << " v: " << card_in_hand_[hand_number[i]].value << " c: " << card_in_hand_[hand_number[i]].color <<", " ;
   }
 
-  std::cout << " | " ;
+  //std::cout << " | " ;
 
   for (int i = 0; i < number; i++) {
-      //cout << "c " ; 
+     //card_possible_.push_back(card_in_desk_[hand_number[i]]);
       card_node = card_in_desk_[i];
-      std::cout << " v: " << card_node.value << " c: " << card_node.color ;
+      std::cout << " v: " << card_node.value << " c: " << card_node.color << ", " ;
   }
-  //cout << "] " << endl;
   cout << endl;
 }
 
 void Poker::CombMaxValue(int offset, int k, int number) {
+  CardNode card_possible;
+
   if (k == 0) {
-    changeCards(possible_card,number);
+    // number 為要換牌的張數
+    ChangeCards(combination_, number);
+    CheckMaxValue();
     return;
   }
 
-  for (int i = offset; i <= hand_card.size() - k; i++) {
-    possible_card.push_back(hand_card[i]);
+  for (int i = offset; i <= card_position_.size() - k; i++) {
+    combination_.push_back(card_position_[i]);
     CombMaxValue(i+1, k-1, number);
-    possible_card.pop_back();
+    combination_.pop_back();
   }
 }
 
@@ -280,6 +288,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   std::string output;
   int i,j;
+  int n = 5;
 
   while (getline(is, input)) {
  
@@ -304,7 +313,8 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     poker->InitCards(input);
     poker->init_handcard(5);
 
-    for(i=0 ;i<=5 ;i++)
+    // C(n取i)組合情況  
+    for(i=0 ;i<=n ;i++)
       poker->CombMaxValue(0, i, 5-i);
   }
     //std::cout << "input "  << input << std::endl; 
