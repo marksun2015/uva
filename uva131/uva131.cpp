@@ -96,6 +96,7 @@ class Poker {
     void CheckMaxValue();
     void init_handcard(int number);
     int GetMaxValue(void);
+    static bool Cmp(CardNode x, CardNode y);
 
   private:
     std::queue <std::string> hand_card_;
@@ -109,6 +110,8 @@ class Poker {
     std::vector <int> combination_;
 
     int max_value_;
+    int one_pair_value_;
+    int three_of_kind_;
 };
 
 Poker::Poker(std::string input)
@@ -120,6 +123,12 @@ void Poker::init_handcard(int number) {
       card_position_.push_back(i);
 }
 
+bool Poker::Cmp(CardNode x, CardNode y) {
+    if(x.value != y.value)
+        return x.value < y.value;
+    return x.value < y.value;
+}
+
 void Poker::CheckMaxValue() {
   int straight = 0;
   int same_c = 0;
@@ -127,15 +136,23 @@ void Poker::CheckMaxValue() {
   int same_h = 0;
   int same_s = 0;
 
-  int number[13] = { 0 }; 
+  int number[14] = { 0 };  //0:no use, 1~13
   //int type_value[9] = { 0 }; 
 
+  std::sort(card_possible_.begin(), card_possible_.end(), Cmp);
   //std::cout << card_possible_.size() << std::endl;
-  for (long unsigned int i = 0; i < card_possible_.size() - 1; i++) {
-    //std::cout << " v: " << card_possible_[i].value << " c: " << card_possible_[i].color <<std::endl ;
+  for (long unsigned int i = 0; i < card_possible_.size() ; i++)
+    std::cout << " v: " << card_possible_[i].value; //<< " c: " << card_possible_[i].color ;
+  std::cout << std::endl;
+ 
+
+  for (long unsigned int i = 0; i < (card_possible_.size() - 1); i++) {
     if((card_possible_[i].value + 1) == card_possible_[i+1].value)
-      straight++ ;
+      straight++;
   }
+
+  if ((card_possible_[3].value == 13) && (card_possible_[4].value == 1))
+      straight++;
 
   for (long unsigned int i = 0; i < card_possible_.size(); i++) {
     if((card_possible_[i].color) == 1)
@@ -151,7 +168,6 @@ void Poker::CheckMaxValue() {
 
         //std::cout << "max_value " << max_value_ << std::endl;
   if (straight == 4) {
-        std::cout << "straight" << std::endl;
     if(max_value_ < Straight) {
         std::cout << "straight" << std::endl;
         max_value_ = Straight;
@@ -159,29 +175,47 @@ void Poker::CheckMaxValue() {
   }
 
   if ((same_c == 5) || (same_d == 5)|| (same_h == 5) || (same_s == 5)) {
+    if(max_value_ == Straight) {
+        std::cout << "StraightFlush" << std::endl;
+        max_value_ = StraightFlush;
+    }
+
     if(max_value_ < Flush) {
         std::cout << "flush" << std::endl;
         max_value_ = Flush;
     }
   }
 
-  for (int i = 0; i < 13; i++) {
+  for (int i = 0; i < 14; i++) {
     if (number[i] == 4) {
         if(max_value_ < FourOfAKind) {
+            std::cout << "FourOfAKind" << std::endl;
             max_value_ = FourOfAKind;
         }
     }
     if (number[i] == 3) {
-        if(max_value_ < ThreeOfAKind) {
+        if((max_value_ == OnePair) && (one_pair_value_ != i)){
+            std::cout << "FullHouse" << std::endl;
+            max_value_ = FullHouse;
+        }else if(max_value_ < ThreeOfAKind) {
+            std::cout << "ThreeOfAKind" << std::endl;
             max_value_ = ThreeOfAKind;
+            three_of_kind_ = i;
         }
         //std::cout << "three-of-a-kind" << std::endl;
     }
-    if (number[i] == 2)
-        if(max_value_ < TwoPairs) {
-            max_value_ = TwoPairs;
+    if (number[i] == 2) {
+        if((max_value_ == ThreeOfAKind) && (three_of_kind_ != i)){
+            std::cout << ">> FullHouse" << std::endl;
+            max_value_ = FullHouse;
+        }
+        if(max_value_ < OnePair) {
+            max_value_ = OnePair;
+            one_pair_value_ = i;
+            std::cout << "OnePair: "<< i << std::endl;
         }
         //std::cout << "one-pair" << std::endl;
+    }
   }
 
   //std::cout << std::endl;
