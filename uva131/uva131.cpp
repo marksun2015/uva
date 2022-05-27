@@ -47,7 +47,7 @@ uva131
     Hand: KS AH 2H 3C 4H Deck: KC 2C TC 2D AS Best hand: three-of-a-kind
     Hand: AH 2C 9S AD 3C Deck: QH KS JS JD KD Best hand: two-pairs
     Hand: 6C 9C 8C 2D 7C Deck: 2H TC 4C 9S AH Best hand: one-pair
-    Hand: 3D 5S 2H QD TD Deck: 6S KH 9H AD QH Best hand: highest-car
+    Hand: 3D 5S 2H QD TD Deck: 6S KH 9H AD QH Best hand: highest-card
 */
 
 #include <algorithm>
@@ -95,28 +95,23 @@ class Poker {
     CardNode MappingCards(std::string node);
     void ChangeCards(const vector<int>& hand_number, int number);
     void CheckMaxValue();
-    void init_handcard(int number);
+    void InitHandcard(int number);
     std::string GetMaxValue(void);
     static bool Cmp(CardNode x, CardNode y);
 
   private:
-    std::queue <std::string> hand_card_;
-    std::queue <std::string> desk_card_;
-
     std::vector <CardNode> card_in_hand_;
-    std::vector <CardNode> card_in_desk_;
+    std::vector <CardNode> card_in_deck_;
     std::vector <CardNode> card_possible_;
-
     std::vector <int> card_position_;
     std::vector <int> combination_;
-
     std::map<int, string> mapValue;
     int max_value_;
 };
 
 Poker::Poker(std::string input)
     :max_value_(0) {
-    mapValue[HighestCard] = "highest-car";
+    mapValue[HighestCard] = "highest-card";
     mapValue[OnePair] = "one-pair";
     mapValue[TwoPairs] = "two-pairs";
     mapValue[ThreeOfAKind] = "three-of-a-kind";
@@ -127,7 +122,7 @@ Poker::Poker(std::string input)
     mapValue[StraightFlush] = "straight-flush";
 }
 
-void Poker::init_handcard(int number) {
+void Poker::InitHandcard(int number) {
   for (int i = 0; i < number; i++) 
       card_position_.push_back(i);
 }
@@ -153,9 +148,10 @@ void Poker::CheckMaxValue() {
 
   std::sort(card_possible_.begin(), card_possible_.end(), Cmp);
   //std::cout << card_possible_.size() << std::endl;
-  for (long unsigned int i = 0; i < card_possible_.size() ; i++)
-    std::cout << " v: " << card_possible_[i].value; //<< " c: " << card_possible_[i].color ;
-  std::cout << std::endl;
+  
+  //for (long unsigned int i = 0; i < card_possible_.size() ; i++)
+  //  std::cout << " v: " << card_possible_[i].value; //<< " c: " << card_possible_[i].color ;
+  //std::cout << std::endl;
  
 
   for (long unsigned int i = 0; i < (card_possible_.size() - 1); i++) {
@@ -220,19 +216,19 @@ void Poker::CheckMaxValue() {
         }
     } else if (number[i] == 2) {
         if((current_max == ThreeOfAKind) && (three_of_kind_value != i)){
-            std::cout << ">> FullHouse" << std::endl;
+            //std::cout << ">> FullHouse" << std::endl;
             current_max = FullHouse;
         }
 
         if((current_max == OnePair) && (one_pair_value > 0)){
             current_max = TwoPairs;
-            std::cout << "TwoPair: " << std::endl;
+            //std::cout << "TwoPair: " << std::endl;
         }
 
         if(current_max < OnePair) {
             current_max = OnePair;
             one_pair_value = i;
-            std::cout << "OnePair: "<< i << std::endl;
+            //std::cout << "OnePair: "<< i << std::endl;
         }
     } 
   }
@@ -262,8 +258,8 @@ void Poker::ChangeCards(const vector<int>& hand_number, int number) {
   //std::cout << " | " ;
 
   for (int i = 0; i < number; i++) {
-     //card_possible_.push_back(card_in_desk_[hand_number[i]]);
-      card_node = card_in_desk_[i];
+     //card_possible_.push_back(card_in_deck_[hand_number[i]]);
+      card_node = card_in_deck_[i];
       card_possible_.push_back(card_node);
       //std::cout << " v: " << card_node.value << " c: " << card_node.color << ", " ;
   }
@@ -290,6 +286,7 @@ void Poker::CombMaxValue(int offset, int k, int number) {
 CardNode Poker::MappingCards(std::string node) {
     const char *value = node.substr(0,1).c_str();
     CardNode card_node;
+
     switch (*value){
         case 'T':
             card_node.value = 10;
@@ -312,7 +309,6 @@ CardNode Poker::MappingCards(std::string node) {
     }
 
     const char *color = node.substr(1,1).c_str();;
-    //std::cout << " c: " << *color << std::endl;
     switch (*color){
         case 'C':
             card_node.color = 1;
@@ -333,40 +329,22 @@ CardNode Poker::MappingCards(std::string node) {
 
 void Poker::InitCards(std::string input) {
   int pos;
-  //std::cout << "Hand:";
   CardNode card_node;
-  for (int i=0; i<5; i++) {
+
+  for (int i = 0; i < 5; i++) {
     pos = input.find(' ');
-    //std::cout << " "  << input.substr(0, pos);
-    hand_card_.push(input.substr(0, pos));  
-
     card_node = MappingCards(input.substr(0, 2));
-    //std::cout << "value "  << card_node.value << " color: " << card_node.color << std::endl;
-
-    //temp.value = stoi(input.substr(0, 1));
-    //temp.color = stoi(input.substr(1, 1));
-    //std::cout << "value "  << temp.value << "color: " << temp.color << std::endl;
-    //std::cout << "value "  << input.substr(0, 1) << "  color: " << input.substr(1, 1) << std::endl;
     card_in_hand_.push_back(card_node);
-
     input.erase (0, pos+1);
   }
   
 
-  //std::cout << " Desk:";
-  for (int i=0; i<5; i++) {
+  for (int i = 0; i < 5; i++) {
     pos = input.find(' ');
-    //std::cout << " "  << input.substr(0, pos);
-    desk_card_.push(input.substr(0, pos));  
-    
     card_node = MappingCards(input.substr(0, 2));
-    card_in_desk_.push_back(card_node);
-
+    card_in_deck_.push_back(card_node);
     input.erase (0, pos+1);
   }
-
-    //std::cout << std::endl;
-
 }
 
 std::string Poker::GetMaxValue(void){
@@ -376,44 +354,34 @@ std::string Poker::GetMaxValue(void){
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   std::string output;
-  int i;
+  int i,j;
   int n = 5;
 
   while (getline(is, input)) {
- 
-  if (input.empty()) {
-    break;
-  }
+    if (input.empty()) {
+      break;
+    }
 
-#if 0
-  os << "Hand:";
-  for (i = 0; i < 5; i++) {
-    os << " "  << input.substr(0+i*3, 2);
-  }
+    os << "Hand:";
+    for (i = 0; i < 5; i++) {
+      os << " "  << input.substr(0+i*3, 2);
+    }
   
-  os << " Desk:";
-  for (j=i; j < 10; j++) {
-    os << " "  << input.substr(0+j*3, 2);
-  }
-#endif
+    os << " Deck:";
+    for (j = i; j < 10; j++) {
+      os << " "  << input.substr(0+j*3, 2);
+    }
 
-  std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
-  {
-    poker->InitCards(input);
-    poker->init_handcard(5);
-
-    // C(n取i)組合情況  
-    for(i=0 ;i<=n ;i++)
-      poker->CombMaxValue(0, i, 5-i);
-  
-    std::cout << "Max "  << poker->GetMaxValue() << std::endl;
-  }
-
-    //std::cout << "input "  << input << std::endl; 
-    //listCards(input, output, os);
-   // maximizeValue();  
-    //std::cout << std::endl;
-
+    std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
+    {
+      poker->InitCards(input);
+      poker->InitHandcard(5);
+      // C(n取i)，組合情況  
+      for(i=0 ;i<=n ;i++)
+        // 手上i張, 取桌上出5-i張牌  
+        poker->CombMaxValue(0, i, 5-i);
+      os << " Best hand: "  << poker->GetMaxValue() << std::endl;
+    }
   }
 }
 
