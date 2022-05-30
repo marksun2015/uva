@@ -67,22 +67,21 @@ using namespace std;
 #include <gmock/gmock.h>
 #endif
 
-
 enum MaxValue {
-   HighestCard = 0, 
-   OnePair,   
-   TwoPairs,  
-   ThreeOfAKind,  
-   Straight,   
-   Flush,   
-   FullHouse,   
-   FourOfAKind,
-   StraightFlush
+  HighestCard = 0,
+  OnePair,
+  TwoPairs,
+  ThreeOfAKind,
+  Straight,
+  Flush,
+  FullHouse,
+  FourOfAKind,
+  StraightFlush
 };
 
 struct CardNode {
-    int value;
-    int color;
+ int value;
+ int color;
 };
 
 class Poker {
@@ -123,14 +122,14 @@ Poker::Poker(std::string input)
 }
 
 void Poker::InitHandcard(int number) {
-  for (int i = 0; i < number; i++) 
-      card_position_.push_back(i);
+  for (int i = 0; i < number; i++)
+    card_position_.push_back(i);
 }
 
 bool Poker::Cmp(CardNode x, CardNode y) {
-    if(x.value != y.value)
-        return x.value < y.value;
+  if(x.value != y.value)
     return x.value < y.value;
+  return x.value < y.value;
 }
 
 void Poker::CheckMaxValue() {
@@ -141,18 +140,15 @@ void Poker::CheckMaxValue() {
   int same_s = 0;
 
   int number[14] = { 0 };  //0:no use, 1~13
-  //int type_value[9] = { 0 }; 
   int current_max = HighestCard;
   int one_pair_value = 0;
   int three_of_kind_value = 0;
 
   std::sort(card_possible_.begin(), card_possible_.end(), Cmp);
-  //std::cout << card_possible_.size() << std::endl;
-  
+
   //for (long unsigned int i = 0; i < card_possible_.size() ; i++)
   //  std::cout << " v: " << card_possible_[i].value; //<< " c: " << card_possible_[i].color ;
   //std::cout << std::endl;
- 
 
   for (long unsigned int i = 0; i < (card_possible_.size() - 1); i++) {
     if((card_possible_[i].value + 1) == card_possible_[i+1].value)
@@ -160,13 +156,12 @@ void Poker::CheckMaxValue() {
   }
 
   if ((card_possible_[0].value == 1)&& 
-      (card_possible_[1].value == 10)&& 
+      (card_possible_[1].value == 10)&&
       (card_possible_[2].value == 11)&&
       (card_possible_[3].value == 12)&&
       (card_possible_[4].value == 13)) {
-        //std::cout << "straight" << std::endl;
         current_max = Straight;
-   }
+  }
 
   for (long unsigned int i = 0; i < card_possible_.size(); i++) {
     if((card_possible_[i].color) == 1)
@@ -182,94 +177,115 @@ void Poker::CheckMaxValue() {
 
   if (straight == 4) {
     if(current_max < Straight) {
-        //std::cout << "straight" << std::endl;
-        current_max = Straight;
+      current_max = Straight;
     }
   }
 
   if ((same_c == 5) || (same_d == 5)|| (same_h == 5) || (same_s == 5)) {
     if(current_max == Straight) {
-        //std::cout << "StraightFlush" << std::endl;
-        current_max = StraightFlush;
+      current_max = StraightFlush;
     }
 
     if(current_max < Flush) {
-        //std::cout << "flush" << std::endl;
-        current_max = Flush;
+      current_max = Flush;
     }
   }
 
   for (int i = 1; i < 14; i++) {
     if (number[i] == 4) {
-        if(current_max < FourOfAKind) {
-            //std::cout << "FourOfAKind" << std::endl;
-            current_max = FourOfAKind;
-        }
+      if(current_max < FourOfAKind) {
+        current_max = FourOfAKind;
+      }
     } else if (number[i] == 3) {
-        if((current_max == OnePair) && (one_pair_value != i)){
-            //std::cout << "FullHouse" << std::endl;
-            current_max = FullHouse;
-        }else if(current_max < ThreeOfAKind) {
-            current_max = ThreeOfAKind;
-            three_of_kind_value = i;
-            //std::cout << "ThreeOfAKind current " << current_max << std::endl;
-        }
+      if((current_max == OnePair) && (one_pair_value != i)){
+        current_max = FullHouse;
+      }else if(current_max < ThreeOfAKind) {
+        current_max = ThreeOfAKind;
+        three_of_kind_value = i;
+      }
     } else if (number[i] == 2) {
-        if((current_max == ThreeOfAKind) && (three_of_kind_value != i)){
-            //std::cout << ">> FullHouse" << std::endl;
-            current_max = FullHouse;
-        }
+      if((current_max == ThreeOfAKind) && (three_of_kind_value != i)){
+        current_max = FullHouse;
+      }
 
-        if((current_max == OnePair) && (one_pair_value > 0)){
-            current_max = TwoPairs;
-            //std::cout << "TwoPair: " << std::endl;
-        }
+      if((current_max == OnePair) && (one_pair_value > 0)){
+        current_max = TwoPairs;
+      }
 
-        if(current_max < OnePair) {
-            current_max = OnePair;
-            one_pair_value = i;
-            //std::cout << "OnePair: "<< i << std::endl;
-        }
+      if(current_max < OnePair) {
+        current_max = OnePair;
+        one_pair_value = i;
+      }
     } 
   }
 
-      //std::cout << " current " << current_max << " max_value "<< max_value_ << std::endl;
   if( current_max > max_value_) {
       max_value_ = current_max;
-      //std::cout << ">> max " << max_value_ << std::endl;
   }
   card_possible_.clear();
 }
 
 void Poker::ChangeCards(const vector<int>& hand_number, int number) {
-  //static int count = 0;
   CardNode card_node;
-  //CardNode card_possible;
 
-  for (long unsigned int i = 0; i < hand_number.size(); i++) 
+  for (long unsigned int i = 0; i < hand_number.size(); i++)
   {
-     //card_possible_.push_back(card_in_hand_[hand_number[i]]);
      card_node = card_in_hand_[hand_number[i]];
      card_possible_.push_back(card_node);
-     //std::cout << " v: " << card_node.value << " c: " << card_node.color <<", " ;
-     //std::cout << " v: " << card_in_hand_[hand_number[i]].value << " c: " << card_in_hand_[hand_number[i]].color <<", " ;
   }
-
-  //std::cout << " | " ;
 
   for (int i = 0; i < number; i++) {
-     //card_possible_.push_back(card_in_deck_[hand_number[i]]);
       card_node = card_in_deck_[i];
       card_possible_.push_back(card_node);
-      //std::cout << " v: " << card_node.value << " c: " << card_node.color << ", " ;
   }
-  //cout << endl;
 }
 
-void Poker::CombMaxValue(int offset, int k, int number) {
+/*
+ref: https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
 
+ex:範例C5取3                        C 5取3, n為2,代表要換的牌數
+遞迴第一層，拆成三組相加            遞迴展開
+comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
+{ 1, comb({ 2 3 4 5 }, 2) } and        ├──CombMaxValue(1,2,n)            push 1
+{ 2, comb({ 3 4 5 }, 2) } and          │   ├──CombMaxValue(2,1,n)           push 2
+{ 3, comb({ 4 5 }, 2) }                │   │    ├──CombMaxValue(3,0,n)         push 3 (1, 2, 3)
+                                       │   │    ├──CombMaxValue(4,0,n)         push 4 (1, 2, 4)
+                                       │   │    └──CombMaxValue(5,0,n)         push 5 (1, 2, 5)
+ 可能性如下                            │   ├──CombMaxValue(3,1,n)           push 3
+  第一組                               │   │    ├──CombMaxValue(4,0,n)         push 4 (1, 3, 4)
+  1  2  3                              │   │    └──CombMaxValue(5,0,n)         push 5 (1, 3, 5)
+  1  2  4                              │   └──CombMaxValue(4,1,n)           push 4
+  1  2  5                              │        └──CombMaxValue(5,0,n)         push 5 (1, 4, 5)
+  1  3  4                              ├──CombMaxValue(2,2,n)            push 2
+  1  3  5                              │   ├──CombMaxValue(3,1)             push 3
+  1  4  5                              │   │    ├──CombMaxValue(4,0,n)         push 4 (2, 3, 4)
+  第二組                               │   │    └──CombMaxValue(5,0,n)         push 5 (2, 3, 5)
+  2  3  4                              │   └──CombMaxValue(4,1)             push 4
+  2  3  5                              │        └──CombMaxValue(5,0,n)         push 5 (2, 4, 5)
+  2  4  5                              └──CombMaxValue(3,2,n)            push 3
+  第三組                                   └──CombMaxValue(4,1,n)           push 4
+  3  4  5                                       └──CombMaxValue(5,0,n)         push 5 (3, 4, 5)
+
+---------------------------------------------------------------
+三組的展開，如下：
+第一組
+comb({ 2 3 4 5 }, 2) =
+{ 2, comb({ 3 4 5 }, 1) } and          (2,3) (2,4) (2,5)
+{ 3, comb({ 4 5 }, 1) } and            (3,4) (3,5)
+{ 4, comb({ 5 }, 1) }                  (4,5)
+
+第二組
+comb({ 3 4 5 }, 2) =
+{ 3, comb({ 4 5 }, 1) } and            (3,4) (3,5)
+{ 4, comb({ 5 }, 1) } and              (4,5)
+
+第三組
+comb({ 4 5 }, 2)                       (4,5)
+*/
+
+// number 為要換牌的張數
+void Poker::CombMaxValue(int offset, int k, int number) {
   if (k == 0) {
-    // number 為要換牌的張數
     ChangeCards(combination_, number);
     CheckMaxValue();
     return;
@@ -281,7 +297,6 @@ void Poker::CombMaxValue(int offset, int k, int number) {
     combination_.pop_back();
   }
 }
-
 
 CardNode Poker::MappingCards(std::string node) {
     const char *value = node.substr(0,1).c_str();
@@ -337,7 +352,6 @@ void Poker::InitCards(std::string input) {
     card_in_hand_.push_back(card_node);
     input.erase (0, pos+1);
   }
-  
 
   for (int i = 0; i < 5; i++) {
     pos = input.find(' ');
@@ -376,10 +390,11 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     {
       poker->InitCards(input);
       poker->InitHandcard(5);
-      // C(n取i)，組合情況  
-      for(i=0 ;i<=n ;i++)
-        // 手上i張, 取桌上出5-i張牌  
+      // C(n取i)，組合情況
+      for(i=0 ;i<=n ;i++) {
+        // 手上i張, 換掉桌上出5-i張牌
         poker->CombMaxValue(0, i, 5-i);
+      }
       os << " Best hand: "  << poker->GetMaxValue() << std::endl;
     }
   }
@@ -398,70 +413,28 @@ int main(int argc, char **argv) {
 #ifndef ONLINE_JUDGE
 TEST(uva514, test_string1) {
   std::istringstream iss(
-            "10\n"
-            "5 7 10 9 8 6 4 3 2 1\n"
-            "5 6 4 8 7 3 2 9 1 10\n"
-            "0\n"
-            "0\n");
+            "TH JH QC QD QS QH KH AH 2S 6S\n"
+            "2H 2S 3H 3S 3C 2D 3D 6C 9C TH\n"
+            "2H 2S 3H 3S 3C 2D 9C 3D 6C TH\n"
+            "2H AD 5H AC 7H AH 6H 9H 4H 3C\n"
+            "AC 2D 9C 3S KD 5S 4D KS AS 4C\n"
+            "KS AH 2H 3C 4H KC 2C TC 2D AS\n"
+            "AH 2C 9S AD 3C QH KS JS JD KD\n"
+            "6C 9C 8C 2D 7C 2H TC 4C 9S AH\n"
+            "3D 5S 2H QD TD 6S KH 9H AD QH\n");
 
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
-  EXPECT_EQ("Yes\n"
-            "Yes\n"
-            "\n",
+  EXPECT_EQ("Hand: TH JH QC QD QS Deck: QH KH AH 2S 6S Best hand: straight-flush\n"
+            "Hand: 2H 2S 3H 3S 3C Deck: 2D 3D 6C 9C TH Best hand: four-of-a-kind\n"
+            "Hand: 2H 2S 3H 3S 3C Deck: 2D 9C 3D 6C TH Best hand: full-house\n"
+            "Hand: 2H AD 5H AC 7H Deck: AH 6H 9H 4H 3C Best hand: flush\n"
+            "Hand: AC 2D 9C 3S KD Deck: 5S 4D KS AS 4C Best hand: straight\n"
+            "Hand: KS AH 2H 3C 4H Deck: KC 2C TC 2D AS Best hand: three-of-a-kind\n"
+            "Hand: AH 2C 9S AD 3C Deck: QH KS JS JD KD Best hand: two-pairs\n"
+            "Hand: 6C 9C 8C 2D 7C Deck: 2H TC 4C 9S AH Best hand: one-pair\n"
+            "Hand: 3D 5S 2H QD TD Deck: 6S KH 9H AD QH Best hand: highest-card\n",
             oss.str());
 }
 #endif
 
-#if 0
-#include <iostream>
-#include <vector>
-
-using namespace std;
-
-vector<int> hand_card;
-vector<int> possible_card;
-
-void pretty_print(const vector<int>& v, int number) {
-  static int count = 0;
-  //cout << "possible_card: " << (++count) << " ";  // << ": [ ";
-  for (int i = 0; i < v.size(); ++i) 
-  { 
-      cout << v[i] << " "; 
-  }
-
-  for (int i = 0; i < number; i++) {
-      cout << "c " ; 
-  }
-  //cout << "] " << endl;
-  cout << endl;
-}
-
-//ref: https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c  
-void comb_max_value(int offset, int k, int number) {
-  if (k == 0) {
-    pretty_print(possible_card,number);
-    return;
-  }
-
-  for (int i = offset; i <= hand_card.size() - k; i++) {
-    possible_card.push_back(hand_card[i]);
-    comb_max_value(i+1, k-1, number);
-    possible_card.pop_back();
-  }
-}
-
-int main() {
-  int n = 5, k = 3;
-
-  for (int i = 1; i <= n; i++) {
-      hand_card.push_back(i);
-  
-  }
-
-  for (int k = 0; k <= 5; k++) { 
-      comb_max_value(0, k, 5-k);
-  }
-  return 0;
-}
-#endif
