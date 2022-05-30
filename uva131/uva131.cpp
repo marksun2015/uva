@@ -243,7 +243,7 @@ void Poker::ChangeCards(const vector<int>& hand_number, int number) {
 /*
 ref: https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
 
-ex:範例C5取3                        C 5取3, n為2,代表要換的牌數
+ex:範例C5取3                        C 5取3。     n為2：代表要換掉桌面牌數2張
 遞迴第一層，拆成三組相加            遞迴展開
 comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
 { 1, comb({ 2 3 4 5 }, 2) } and        ├──CombMaxValue(1,2,n)            push 1
@@ -266,24 +266,8 @@ comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
   第三組                                   └──CombMaxValue(4,1,n)           push 4
   3  4  5                                       └──CombMaxValue(5,0,n)         push 5 (3, 4, 5)
 
----------------------------------------------------------------
-三組的展開，如下：
-第一組
-comb({ 2 3 4 5 }, 2) =
-{ 2, comb({ 3 4 5 }, 1) } and          (2,3) (2,4) (2,5)
-{ 3, comb({ 4 5 }, 1) } and            (3,4) (3,5)
-{ 4, comb({ 5 }, 1) }                  (4,5)
-
-第二組
-comb({ 3 4 5 }, 2) =
-{ 3, comb({ 4 5 }, 1) } and            (3,4) (3,5)
-{ 4, comb({ 5 }, 1) } and              (4,5)
-
-第三組
-comb({ 4 5 }, 2)                       (4,5)
 */
 
-// number 為要換牌的張數
 void Poker::CombMaxValue(int offset, int k, int number) {
   if (k == 0) {
     ChangeCards(combination_, number);
@@ -390,7 +374,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     {
       poker->InitCards(input);
       poker->InitHandcard(5);
-      // C(n取i)，組合情況
+      // C n取i的組合情況。i=0，代表全部換掉。
       for(i=0 ;i<=n ;i++) {
         // 手上i張, 換掉桌上出5-i張牌
         poker->CombMaxValue(0, i, 5-i);
