@@ -87,7 +87,7 @@ struct CardNode {
 
 class Poker {
 public:
-  explicit Poker(std::string input);
+  explicit Poker();
   ~Poker() = default;
 
   void InitCards(std::string node);
@@ -111,7 +111,7 @@ private:
   int max_value_;
 };
 
-Poker::Poker(std::string input) : max_value_(0) {
+Poker::Poker() : max_value_(0) {
   mapValue[HighestCard] = "highest-card";
   mapValue[OnePair] = "one-pair";
   mapValue[TwoPairs] = "two-pairs";
@@ -356,7 +356,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
       os << " " << input.substr(0 + j * 3, 2);
     }
 
-    std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
+    std::shared_ptr<Poker> poker = std::make_shared<Poker>();
     {
       poker->InitCards(input);
       poker->InitHandcard(HAND_CARDS);
