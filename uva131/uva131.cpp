@@ -139,10 +139,8 @@ void Poker::CheckMaxValue() {
   int same_h = 0;
   int same_s = 0;
 
-  int number[14] = { 0 };  //0:no use, 1~13
+  int number[14] = { 0 };  //use number[1] ~ number[13]
   int current_max = HighestCard;
-  int one_pair_value = 0;
-  int three_of_kind_value = 0;
 
   std::sort(card_possible_.begin(), card_possible_.end(), Cmp);
 
@@ -155,12 +153,18 @@ void Poker::CheckMaxValue() {
       straight++;
   }
 
+  if (straight == 4) {
+    if(current_max < Straight)
+      current_max = Straight;
+  }
+
   if ((card_possible_[0].value == 1)&& 
       (card_possible_[1].value == 10)&&
       (card_possible_[2].value == 11)&&
       (card_possible_[3].value == 12)&&
       (card_possible_[4].value == 13)) {
-        current_max = Straight;
+        if(current_max < Straight)
+          current_max = Straight;
   }
 
   for (long unsigned int i = 0; i < card_possible_.size(); i++) {
@@ -175,53 +179,41 @@ void Poker::CheckMaxValue() {
     number[card_possible_[i].value]++;
   }
 
-  if (straight == 4) {
-    if(current_max < Straight) {
-      current_max = Straight;
-    }
-  }
-
   if ((same_c == 5) || (same_d == 5)|| (same_h == 5) || (same_s == 5)) {
-    if(current_max == Straight) {
+    if(current_max == Straight)
       current_max = StraightFlush;
-    }
 
-    if(current_max < Flush) {
+    if(current_max < Flush)
       current_max = Flush;
-    }
   }
 
   for (int i = 1; i < 14; i++) {
     if (number[i] == 4) {
-      if(current_max < FourOfAKind) {
+      if(current_max < FourOfAKind)
         current_max = FourOfAKind;
-      }
-    } else if (number[i] == 3) {
-      if((current_max == OnePair) && (one_pair_value != i)){
+    } 
+    else if (number[i] == 3) {
+      if(current_max == OnePair)
         current_max = FullHouse;
-      }else if(current_max < ThreeOfAKind) {
+
+      if(current_max < ThreeOfAKind) 
         current_max = ThreeOfAKind;
-        three_of_kind_value = i;
-      }
-    } else if (number[i] == 2) {
-      if((current_max == ThreeOfAKind) && (three_of_kind_value != i)){
+    } 
+    else if (number[i] == 2) {
+      if(current_max == ThreeOfAKind)
         current_max = FullHouse;
-      }
 
-      if((current_max == OnePair) && (one_pair_value > 0)){
+      if(current_max == OnePair)
         current_max = TwoPairs;
-      }
 
-      if(current_max < OnePair) {
+      if(current_max < OnePair)
         current_max = OnePair;
-        one_pair_value = i;
-      }
     } 
   }
 
-  if( current_max > max_value_) {
+  if( current_max > max_value_)
       max_value_ = current_max;
-  }
+
   card_possible_.clear();
 }
 
@@ -395,7 +387,7 @@ int main(int argc, char **argv) {
 }
 
 #ifndef ONLINE_JUDGE
-TEST(uva514, test_string1) {
+TEST(uva131, test_string1) {
   std::istringstream iss(
             "TH JH QC QD QS QH KH AH 2S 6S\n"
             "2H 2S 3H 3S 3C 2D 3D 6C 9C TH\n"
@@ -418,6 +410,31 @@ TEST(uva514, test_string1) {
             "Hand: AH 2C 9S AD 3C Deck: QH KS JS JD KD Best hand: two-pairs\n"
             "Hand: 6C 9C 8C 2D 7C Deck: 2H TC 4C 9S AH Best hand: one-pair\n"
             "Hand: 3D 5S 2H QD TD Deck: 6S KH 9H AD QH Best hand: highest-card\n",
+            oss.str());
+}
+
+TEST(uva131, test_string2) {
+  std::istringstream iss(
+            "2D 3D 6C 9C TH 2H 2S 3H 3S 3C\n"
+            "2D 9C 3D 6C TH 2H 2S 3H 3S 3C\n"
+            "AH 6H 9H 4H 3C 2H AD 5H AC 7H\n"
+            "5S 4D KS AS 4C AC 2D 9C 3S KD\n"
+            "KC 2C TC 2D AS KS AH 2H 3C 4H\n"
+            "QH KS JS JD KD AH 2C 9S AD 3C\n"
+            "2H TC 4C 9S AH 6C 9C 8C 2D 7C\n"
+            "6S KH 9H AD QH 3D 5S 2H QD TD\n");
+
+  std::ostringstream oss;
+  solve_uva_problem(iss, oss);
+
+  EXPECT_EQ("Hand: 2D 3D 6C 9C TH Deck: 2H 2S 3H 3S 3C Best hand: full-house\n"
+            "Hand: 2D 9C 3D 6C TH Deck: 2H 2S 3H 3S 3C Best hand: full-house\n"
+            "Hand: AH 6H 9H 4H 3C Deck: 2H AD 5H AC 7H Best hand: flush\n"
+            "Hand: 5S 4D KS AS 4C Deck: AC 2D 9C 3S KD Best hand: two-pairs\n"
+            "Hand: KC 2C TC 2D AS Deck: KS AH 2H 3C 4H Best hand: three-of-a-kind\n"
+            "Hand: QH KS JS JD KD Deck: AH 2C 9S AD 3C Best hand: two-pairs\n"
+            "Hand: 2H TC 4C 9S AH Deck: 6C 9C 8C 2D 7C Best hand: flush\n"
+            "Hand: 6S KH 9H AD QH Deck: 3D 5S 2H QD TD Best hand: one-pair\n",
             oss.str());
 }
 #endif
