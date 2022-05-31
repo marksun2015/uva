@@ -62,6 +62,7 @@ uva131
 using namespace std;
 
 //#define ONLINE_JUDGE
+#define HAND_CARDS 5
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -90,12 +91,14 @@ public:
   ~Poker() = default;
 
   void InitCards(std::string node);
-  void CombMaxValue(int offset, int k, int number);
-  CardNode MappingCards(std::string node);
-  void ChangeCards(const vector<int> &hand_number, int number);
-  void CheckMaxValue();
   void InitHandcard(int number);
-  std::string GetMaxValue(void);
+  void CombMaxValue(int offset, int k, int replace_number);
+  std::string GetMaxValue() { return mapValue[max_value_]; }
+
+private:
+  void CheckMaxValue();
+  void ChangeCards(const vector<int> &hand_number, int replace_number);
+  CardNode MappingCards(std::string node);
   static bool Cmp(CardNode x, CardNode y);
 
 private:
@@ -138,7 +141,7 @@ void Poker::CheckMaxValue() {
   int same_h = 0;
   int same_s = 0;
 
-  int number[14] = {0}; // use number[1] ~ number[13]
+  int number[14] = {0}; //use number[1] ~ number[13]
   int current_max = HighestCard;
 
   std::sort(card_possible_.begin(), card_possible_.end(), Cmp);
@@ -213,7 +216,7 @@ void Poker::CheckMaxValue() {
   card_possible_.clear();
 }
 
-void Poker::ChangeCards(const vector<int> &hand_number, int number) {
+void Poker::ChangeCards(const vector<int> &hand_number, int replace_number) {
   CardNode card_node;
 
   for (long unsigned int i = 0; i < hand_number.size(); i++) {
@@ -221,14 +224,15 @@ void Poker::ChangeCards(const vector<int> &hand_number, int number) {
     card_possible_.push_back(card_node);
   }
 
-  for (int i = 0; i < number; i++) {
+  for (int i = 0; i < replace_number; i++) {
     card_node = card_in_deck_[i];
     card_possible_.push_back(card_node);
   }
 }
 
 /*
-ref: https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
+ref:
+https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
 
 ex:範例C5取3                        C 5取3。     n為2：代表要換掉桌面牌數2張
 遞迴第一層，拆成三組相加            遞迴展開
@@ -255,16 +259,16 @@ comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
 
 */
 
-void Poker::CombMaxValue(int offset, int k, int number) {
+void Poker::CombMaxValue(int offset, int k, int replace_number) {
   if (k == 0) {
-    ChangeCards(combination_, number);
+    ChangeCards(combination_, replace_number);
     CheckMaxValue();
     return;
   }
 
   for (long unsigned int i = offset; i <= (card_position_.size() - k); i++) {
     combination_.push_back(card_position_[i]);
-    CombMaxValue(i + 1, k - 1, number);
+    CombMaxValue(i + 1, k - 1, replace_number);
     combination_.pop_back();
   }
 }
@@ -295,7 +299,7 @@ CardNode Poker::MappingCards(std::string node) {
   }
 
   const char *color = node.substr(1, 1).c_str();
-  ;
+
   switch (*color) {
   case 'C':
     card_node.color = 1;
@@ -333,13 +337,9 @@ void Poker::InitCards(std::string input) {
   }
 }
 
-std::string Poker::GetMaxValue(void) { return mapValue[max_value_]; }
-
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
-  std::string output;
   int i, j;
-  int n = 5;
 
   while (getline(is, input)) {
     if (input.empty()) {
@@ -359,11 +359,9 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
       poker->InitCards(input);
-      poker->InitHandcard(5);
-      // C n取i的組合情況。i=0，代表全部換掉。
-      for (i = 0; i <= n; i++) {
-        // 手上i張, 換掉桌上出5-i張牌
-        poker->CombMaxValue(0, i, 5 - i);
+      poker->InitHandcard(HAND_CARDS);
+      for (i = 0; i <= HAND_CARDS; i++) {            //C n取i的組合情況。
+        poker->CombMaxValue(0, i, HAND_CARDS - i);   //手上i張，換掉桌上5-i張牌。i=0，代表全部換掉。
       }
       os << " Best hand: " << poker->GetMaxValue() << std::endl;
     }
