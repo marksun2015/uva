@@ -242,19 +242,19 @@ comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
 { 3, comb({ 4 5 }, 2) }                │   │    ├──CombMaxValue(3,0,n)         push 3 (1, 2, 3)
                                        │   │    ├──CombMaxValue(4,0,n)         push 4 (1, 2, 4)
                                        │   │    └──CombMaxValue(5,0,n)         push 5 (1, 2, 5)
- 可能性如下                            │   ├──CombMaxValue(3,1,n)           push 3
-  第一組                               │   │    ├──CombMaxValue(4,0,n)         push 4 (1, 3, 4)
+possible combination                   │   ├──CombMaxValue(3,1,n)           push 3
+comb1:                                 │   │    ├──CombMaxValue(4,0,n)         push 4 (1, 3, 4)
   1  2  3                              │   │    └──CombMaxValue(5,0,n)         push 5 (1, 3, 5)
   1  2  4                              │   └──CombMaxValue(4,1,n)           push 4
   1  2  5                              │        └──CombMaxValue(5,0,n)         push 5 (1, 4, 5)
   1  3  4                              ├──CombMaxValue(2,2,n)            push 2
   1  3  5                              │   ├──CombMaxValue(3,1)             push 3
   1  4  5                              │   │    ├──CombMaxValue(4,0,n)         push 4 (2, 3, 4)
-  第二組                               │   │    └──CombMaxValue(5,0,n)         push 5 (2, 3, 5)
+comb2:                                 │   │    └──CombMaxValue(5,0,n)         push 5 (2, 3, 5)
   2  3  4                              │   └──CombMaxValue(4,1)             push 4
   2  3  5                              │        └──CombMaxValue(5,0,n)         push 5 (2, 4, 5)
   2  4  5                              └──CombMaxValue(3,2,n)            push 3
-  第三組                                   └──CombMaxValue(4,1,n)           push 4
+comb3:                                     └──CombMaxValue(4,1,n)           push 4
   3  4  5                                       └──CombMaxValue(5,0,n)         push 5 (3, 4, 5)
 
 */
