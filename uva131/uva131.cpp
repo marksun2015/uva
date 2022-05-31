@@ -91,7 +91,7 @@ public:
   ~Poker() = default;
 
   void InitCards(std::string node);
-  void InitHandcard(int number);
+  void InitCombPosition(int number);
   void CombMaxValue(int offset, int k, int replace_number);
   std::string GetMaxValue() { return mapValue[max_value_]; }
 
@@ -123,7 +123,7 @@ Poker::Poker() : max_value_(0) {
   mapValue[StraightFlush] = "straight-flush";
 }
 
-void Poker::InitHandcard(int number) {
+void Poker::InitCombPosition(int number) {
   for (int i = 0; i < number; i++)
     card_position_.push_back(i);
 }
@@ -359,7 +359,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     std::shared_ptr<Poker> poker = std::make_shared<Poker>();
     {
       poker->InitCards(input);
-      poker->InitHandcard(HAND_CARDS);
+      poker->InitCombPosition(HAND_CARDS);
       for (i = 0; i <= HAND_CARDS; i++) {            //C n取i的組合情況。
         poker->CombMaxValue(0, i, HAND_CARDS - i);   //手上i張，換掉桌上5-i張牌。i=0，代表全部換掉。
       }
