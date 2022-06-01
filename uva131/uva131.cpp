@@ -87,10 +87,9 @@ struct CardNode {
 
 class Poker {
 public:
-  explicit Poker();
+  explicit Poker(string input);
   ~Poker() = default;
 
-  void InitCards(std::string node);
   void InitCombPosition(int number);
   void CombMaxValue(int offset, int k, int replace_number);
   std::string GetMaxValue() { return mapValue[max_value_]; }
@@ -111,16 +110,32 @@ private:
   int max_value_;
 };
 
-Poker::Poker() : max_value_(0) {
-  mapValue[HighestCard] = "highest-card";
-  mapValue[OnePair] = "one-pair";
-  mapValue[TwoPairs] = "two-pairs";
-  mapValue[ThreeOfAKind] = "three-of-a-kind";
-  mapValue[Straight] = "straight";
-  mapValue[Flush] = "flush";
-  mapValue[FullHouse] = "full-house";
-  mapValue[FourOfAKind] = "four-of-a-kind";
-  mapValue[StraightFlush] = "straight-flush";
+Poker::Poker(string input) : max_value_(0) {
+  int pos;
+
+  for (int i = 0; i < 5; i++) {
+    pos = input.find(' ');
+    card_in_hand_.push_back(MappingCards(input.substr(0, 2)));
+    input.erase(0, pos + 1);
+  }
+
+  for (int i = 0; i < 5; i++) {
+    pos = input.find(' ');
+    card_in_deck_.push_back(MappingCards(input.substr(0, 2)));
+    input.erase(0, pos + 1);
+  }
+
+  mapValue = {
+      {HighestCard, "highest-card" },
+      {OnePair , "one-pair"},
+      {TwoPairs , "two-pairs"},
+      {ThreeOfAKind , "three-of-a-kind"},
+      {Straight , "straight"},
+      {Flush , "flush"},
+      {FullHouse , "full-house"},
+      {FourOfAKind , "four-of-a-kind"},
+      {StraightFlush , "straight-flush"}
+  };
 }
 
 void Poker::InitCombPosition(int number) {
@@ -235,7 +250,7 @@ ref:
 https://stackoverflow.com/questions/12991758/creating-all-possible-k-combinations-of-n-items-in-c
 
 ex:範例C5取3                        C 5取3。     n為2：代表要換掉桌面牌數2張
-遞迴第一層，拆成三組相加            遞迴展開
+遞迴第一層，拆成三組相加            遞迴展開    第一層i=0~2, push 0~2 ,以下用1~3來解釋比較方便
 comb({ 1 2 3 4 5 }, 3) =            CombMaxValue(0,3,n)
 { 1, comb({ 2 3 4 5 }, 2) } and        ├──CombMaxValue(1,2,n)            push 1
 { 2, comb({ 3 4 5 }, 2) } and          │   ├──CombMaxValue(2,1,n)           push 2
@@ -318,25 +333,6 @@ CardNode Poker::MappingCards(std::string node) {
   return card_node;
 }
 
-void Poker::InitCards(std::string input) {
-  int pos;
-  CardNode card_node;
-
-  for (int i = 0; i < 5; i++) {
-    pos = input.find(' ');
-    card_node = MappingCards(input.substr(0, 2));
-    card_in_hand_.push_back(card_node);
-    input.erase(0, pos + 1);
-  }
-
-  for (int i = 0; i < 5; i++) {
-    pos = input.find(' ');
-    card_node = MappingCards(input.substr(0, 2));
-    card_in_deck_.push_back(card_node);
-    input.erase(0, pos + 1);
-  }
-}
-
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int i, j;
@@ -356,9 +352,8 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
       os << " " << input.substr(0 + j * 3, 2);
     }
 
-    std::shared_ptr<Poker> poker = std::make_shared<Poker>();
+    std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
-      poker->InitCards(input);
       poker->InitCombPosition(HAND_CARDS);
       for (i = 0; i <= HAND_CARDS; i++) {            //C n取i的組合情況。
         poker->CombMaxValue(0, i, HAND_CARDS - i);   //手上i張，換掉桌上5-i張牌。i=0，代表全部換掉。
