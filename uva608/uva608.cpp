@@ -50,7 +50,7 @@ uva608
 
 using namespace std;
 
-#define ONLINE_JUDGE
+//#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -59,12 +59,13 @@ using namespace std;
 #if 1
 class Coins {
 public:
-  explicit Coins(string input);
+  explicit Coins(std::string input);
   ~Coins() = default;
 
-  void StringProcess(string input);
-  void Union(string input);
-  void Intersect();
+  void StringProcess(std::string input);
+  void Union(std::string input);
+  std::vector<char> RemoveIntersect(std::string input);
+  void DifferentWeightProcess();
 
 private:
   int NthSubstr(int n, const string& s, const string& p);
@@ -75,7 +76,7 @@ private:
 };
 #endif
 
-Coins::Coins(string input) {}
+Coins::Coins(std::string input) {}
 
 int Coins::NthSubstr(int n, const string& s, const string& p) {
     string::size_type i = s.find(p);     // Find the first occurrence
@@ -91,7 +92,7 @@ int Coins::NthSubstr(int n, const string& s, const string& p) {
 }
 
 
-void Coins::Union(string input) {
+void Coins::Union(std::string input) {
   for(long unsigned int i = 0; i < input.length(); i++){
     auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i]);
     if (searchResult == union_coins_.end()){
@@ -101,18 +102,21 @@ void Coins::Union(string input) {
   }
 }
 
-void Coins::Intersect() {
-  std::vector<char> left_remain;
-  std::vector<char> right_remain;
+std::vector<char> Coins::RemoveIntersect(std::string input) {
+  std::vector<char> exist_letter;
 
-  //for (char const &c: union_coins_)
-  //      std::cout << c << ' ';
-  std::cout << " Intersect.....";
-  
-  for (auto &s: differ_weight_coins_) {
-        std::cout << s << std::endl;
-  }
+  for(long unsigned int i = 0; i < input.size(); i++) {
+        //std::cout << "  " << input.at(i) << std::endl; 
+        auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input.at(i));
+        if (searchResult == union_coins_.end()){
+            //std::cout << "  ....." << input.at(i);
+            exist_letter.push_back(input.at(i));
+        }
+        
+    }
+   return exist_letter;
 
+#if 0
   for(long unsigned int i = 0; i < different_coins_.size(); i++) {
     for(long unsigned int j = 0; j < different_coins_.at(i).first.size(); j++) {
         std::cout << "first  " << different_coins_.at(i).first[j] << std::endl; 
@@ -132,11 +136,13 @@ void Coins::Intersect() {
         }
     }
   }
+#endif
 
       
   //for (char const &c: left_remain)
   //      std::cout << c << ' ';
 
+#if 0
   for(long unsigned int i = 0; i < left_remain.size(); i++) {
         std::cout << "left remain  " << left_remain[i];
   }
@@ -149,9 +155,45 @@ void Coins::Intersect() {
       //        << " fsize " << different_coins_.at(i).first.size() 
       //        << " s " << different_coins_.at(i).second 
       //        << std::endl;
+#endif
+
+}    
+    
+void Coins::DifferentWeightProcess() {
+  int pos;
+  std::vector<char> left_exist_letter;
+  std::vector<char> right_exist_letter;
+  std::string weight;
+
+  //for (char const &c: union_coins_)
+  //      std::cout << c << ' ';
+  //std::cout << " DifferentWeightProcess.....";
+  
+  for (auto &s: differ_weight_coins_) {
+    std::cout << s << std::endl;
+    pos = s.find(' ');
+    std::cout << "left " << s.substr(0, pos) << std::endl;
+    std::string left = s.substr(0, pos);
+    s.erase(0, pos+1);
+    left_exist_letter = RemoveIntersect(left);
+    for (auto &c: left_exist_letter)
+        std::cout << c << std::endl;
+
+    pos = s.find(' ');
+    std::cout << "right " << s.substr(0, pos) << std::endl;
+    std::string right = s.substr(0, pos);
+    s.erase(0, pos+1);
+    right_exist_letter = RemoveIntersect(right);
+    for (auto &c: right_exist_letter)
+        std::cout << c << std::endl;
+    
+    weight = s;
+  }
+
+   std::cout << "weight " << weight << std::endl;
 }
 
-void Coins::StringProcess(string input) {
+void Coins::StringProcess(std::string input) {
   int pos;
   //std::string left;
   //std::string right;
@@ -166,13 +208,13 @@ void Coins::StringProcess(string input) {
   }
 
   pos = input.find(' ');
-  std::cout << "left " << input.substr(0, pos) << std::endl;
+  //std::cout << "left " << input.substr(0, pos) << std::endl;
   std::string left = input.substr(0, pos);
   input.erase(0, pos+1);
   //std::cout << "input remain " << input << std::endl;
 
   pos = input.find(' ');
-  std::cout << "right " << input.substr(0, pos) << std::endl;
+  //std::cout << "right " << input.substr(0, pos) << std::endl;
   std::string right = input.substr(0, pos);
   input.erase(0, pos+1);
 
@@ -214,7 +256,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     
   }
 
-  coins->Intersect();
+  coins->DifferentWeightProcess();
 
 
   os << "K is the counterfeit coin and it is light.\n";
