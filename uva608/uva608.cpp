@@ -63,7 +63,7 @@ public:
   ~Coins() = default;
 
   void StringProcess(std::string input);
-  void Union(std::string input);
+  void Union();
   std::vector<char> RemoveIntersect(std::string input);
   void DifferentWeightProcess();
 
@@ -73,6 +73,9 @@ private:
   std::vector<std::pair<string, string>> different_coins_;
   std::vector<string> differ_weight_coins_;
   std::vector<char> union_coins_;
+  std::vector<string> even_coins_;
+  std::vector<string> up_coins_;
+  std::vector<string> down_coins_;
 };
 #endif
 
@@ -92,14 +95,40 @@ int Coins::NthSubstr(int n, const string& s, const string& p) {
 }
 
 
-void Coins::Union(std::string input) {
+void Coins::Union() {
+#if 1
+  int pos;
+  for(long unsigned int i = 0; i < even_coins_.size(); i++) {
+      pos = even_coins_[i].find(' ');
+      std::cout << "left " << even_coins_[i].substr(0, pos) << std::endl;
+      std::string left = even_coins_[i].substr(0, pos);
+      even_coins_[i].erase(0, pos+1);
+      //std::cout << "input remain " << input << std::endl;
+
+      pos = even_coins_[i].find(' ');
+      std::cout << "right " << even_coins_[i].substr(0, pos) << std::endl;
+      std::string right = even_coins_[i].substr(0, pos);
+      even_coins_[i].erase(0, pos+1);
+
+      //if(weight.compare("up") == 0){
+      //  Union(left);
+      //  Union(right);
+      //}else {
+      //  different_coins_.push_back({left, right});
+      //}
+      //std::cout << "weight " << input << std::endl;
+  }
+#endif
+
+#if 0
   for(long unsigned int i = 0; i < input.length(); i++){
     auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i]);
     if (searchResult == union_coins_.end()){
-        std::cout << "--> " << input[i] << std::endl;
+        //std::cout << "--> " << input[i] << std::endl;
         union_coins_.push_back(input[i]);
     }
   }
+#endif
 }
 
 std::vector<char> Coins::RemoveIntersect(std::string input) {
@@ -202,11 +231,24 @@ void Coins::StringProcess(std::string input) {
   pos = NthSubstr(2, input, " "); 
   weight = input.substr(pos + 1, std::string::npos);
   
-  if(weight.compare("even") != 0) {
-    differ_weight_coins_.push_back(input);
+      std::cout << "weight " << weight <<std::endl;
+    //differ_weight_coins_.push_back(input);
+  if(weight.compare("even") == 0) {
+    even_coins_.push_back(input);
     return;
   }
 
+  if(weight.compare("up") == 0) {
+    up_coins_.push_back(input);
+    return;
+  }
+  
+  if(weight.compare("down") == 0) {
+    down_coins_.push_back(input);
+    return;
+  }
+
+#if 0
   pos = input.find(' ');
   //std::cout << "left " << input.substr(0, pos) << std::endl;
   std::string left = input.substr(0, pos);
@@ -219,14 +261,14 @@ void Coins::StringProcess(std::string input) {
   input.erase(0, pos+1);
 
   //if(input.compare("even") == 0){
-  if(weight.compare("even") == 0){
+  if(weight.compare("up") == 0){
     Union(left);
     Union(right);
   }else {
     different_coins_.push_back({left, right});
   }
   //std::cout << "weight " << input << std::endl;
-
+#endif
 
 }
 
@@ -241,22 +283,26 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     //os << input;
   //}
 
-  std::shared_ptr<Coins> coins = std::make_shared<Coins>(input);
+  //std::shared_ptr<Coins> coins = std::make_shared<Coins>(input);
 
-  while(getline(is, input))
+  while(count--)
   {
     if (input.empty()) {
         break;
     }
 
-    //std::shared_ptr<Coins> coins = std::make_shared<Coins>(input);
-    //{
-        coins->StringProcess(input);
-    //}
+    std::shared_ptr<Coins> coins = std::make_shared<Coins>(input);
+    {
+        for(int i = 0; i < 3; i++) {
+            getline(is, input);
+            coins->StringProcess(input);
+        }
+        coins->Union();
+        //coins->DifferentWeightProcess();
+    }
     
   }
 
-  coins->DifferentWeightProcess();
 
 
   os << "K is the counterfeit coin and it is light.\n";
