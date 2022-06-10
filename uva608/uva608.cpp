@@ -64,8 +64,12 @@ public:
 
   void StringProcess(std::string input);
   void Union();
-  std::vector<char> RemoveIntersect(std::string input);
   void DifferentWeightProcess();
+
+private:
+  std::vector<char> RemoveAppearInUnion(std::vector<string> input);
+  void GetInsection(); 
+  void SaveUnion(std::string input);
 
 private:
   int NthSubstr(int n, const string& s, const string& p);
@@ -95,6 +99,16 @@ int Coins::NthSubstr(int n, const string& s, const string& p) {
 }
 
 
+void Coins::SaveUnion(std::string input) {
+  for(long unsigned int i = 0; i < input.length(); i++){
+    auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i]);
+    if (searchResult == union_coins_.end()){
+        std::cout << "--> " << input[i] << std::endl;
+        union_coins_.push_back(input[i]);
+    }
+  }
+}
+    
 void Coins::Union() {
 #if 1
   int pos;
@@ -102,12 +116,14 @@ void Coins::Union() {
       pos = even_coins_[i].find(' ');
       std::cout << "left " << even_coins_[i].substr(0, pos) << std::endl;
       std::string left = even_coins_[i].substr(0, pos);
+      SaveUnion(left);
       even_coins_[i].erase(0, pos+1);
       //std::cout << "input remain " << input << std::endl;
 
       pos = even_coins_[i].find(' ');
       std::cout << "right " << even_coins_[i].substr(0, pos) << std::endl;
       std::string right = even_coins_[i].substr(0, pos);
+      SaveUnion(right);
       even_coins_[i].erase(0, pos+1);
 
       //if(weight.compare("up") == 0){
@@ -120,30 +136,28 @@ void Coins::Union() {
   }
 #endif
 
-#if 0
-  for(long unsigned int i = 0; i < input.length(); i++){
-    auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i]);
-    if (searchResult == union_coins_.end()){
-        //std::cout << "--> " << input[i] << std::endl;
-        union_coins_.push_back(input[i]);
-    }
-  }
-#endif
 }
 
-std::vector<char> Coins::RemoveIntersect(std::string input) {
+std::vector<char> Coins::RemoveAppearInUnion(std::vector<string> input) {
+#if 1
+  //int pos;
   std::vector<char> exist_letter;
 
   for(long unsigned int i = 0; i < input.size(); i++) {
-        //std::cout << "  " << input.at(i) << std::endl; 
-        auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input.at(i));
+    for(long unsigned int j = 0; j < input[i].size(); j++) {
+        //std::cout << "  " << input[i] << std::endl; 
+        //std::cout << "  " << input[i].at(j) << std::endl; 
+        //pos = input[i].find(' ');
+        auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i].at(j));
         if (searchResult == union_coins_.end()){
-            //std::cout << "  ....." << input.at(i);
-            exist_letter.push_back(input.at(i));
+            std::cout << "  ....." << input[i].at(j);
+            exist_letter.push_back(input[i].at(j));
         }
         
     }
+  }
    return exist_letter;
+#endif
 
 #if 0
   for(long unsigned int i = 0; i < different_coins_.size(); i++) {
@@ -188,16 +202,26 @@ std::vector<char> Coins::RemoveIntersect(std::string input) {
 
 }    
     
+ 
+void Coins::GetInsection() {
+
+   
+} 
+    
 void Coins::DifferentWeightProcess() {
+  if (!up_coins_.empty())
+    RemoveAppearInUnion(up_coins_);
+  GetInsection();
+
+#if 0 
   int pos;
   std::vector<char> left_exist_letter;
   std::vector<char> right_exist_letter;
   std::string weight;
-
   //for (char const &c: union_coins_)
   //      std::cout << c << ' ';
   //std::cout << " DifferentWeightProcess.....";
-  
+ 
   for (auto &s: differ_weight_coins_) {
     std::cout << s << std::endl;
     pos = s.find(' ');
@@ -220,6 +244,7 @@ void Coins::DifferentWeightProcess() {
   }
 
    std::cout << "weight " << weight << std::endl;
+#endif
 }
 
 void Coins::StringProcess(std::string input) {
@@ -298,7 +323,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
             coins->StringProcess(input);
         }
         coins->Union();
-        //coins->DifferentWeightProcess();
+        coins->DifferentWeightProcess();
     }
     
   }
