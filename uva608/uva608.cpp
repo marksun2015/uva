@@ -140,21 +140,28 @@ void Coins::Union() {
 
 std::vector<char> Coins::RemoveAppearInUnion(std::vector<string> input) {
 #if 1
-  //int pos;
   std::vector<char> exist_letter;
 
+  int pos;
+ 
   for(long unsigned int i = 0; i < input.size(); i++) {
-    for(long unsigned int j = 0; j < input[i].size(); j++) {
+    std::string weight;
+    pos = NthSubstr(2, input[i], " "); 
+    weight = input[i].substr(pos + 1, std::string::npos);
+    for(long unsigned int j = 0; j < input[i].size() - weight.size(); j++) {
         //std::cout << "  " << input[i] << std::endl; 
         //std::cout << "  " << input[i].at(j) << std::endl; 
         //pos = input[i].find(' ');
         auto searchResult = std::find(union_coins_.begin(), union_coins_.end(), input[i].at(j));
+        if (searchResult != union_coins_.end())
+            input[i].at(j) = '0';
         if (searchResult == union_coins_.end()){
             std::cout << "  ....." << input[i].at(j);
             exist_letter.push_back(input[i].at(j));
         }
         
     }
+            std::cout << "  ....." << input[i];
   }
    return exist_letter;
 #endif
