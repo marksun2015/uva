@@ -64,7 +64,7 @@ using namespace std;
 
 class Coins {
 public:
-  explicit Coins(std::string input);
+  explicit Coins();
   ~Coins() = default;
 
   void StringProcess(std::string input);
@@ -72,16 +72,17 @@ public:
   void DifferentWeightProcess(std::ostream &os);
 
 private:
-  int NthSubstr(int n, const string &s, const string &p);
   void RemoveAppearInUnion(std::vector<string> input);
-  void InsectionInDifferentWeight(std::vector<string> input_h,
-                                  std::vector<string> input_l,
-                                  std::ostream &os);
+  void InsectionDifferentWeight(std::vector<string> input_h,
+                                std::vector<string> input_l,
+                                std::ostream &os);
 
+  int NthSubstr(int n, const string &s, const string &p);
   std::string Union(std::string &v1, std::string &v2);
   std::string Difference(std::string &v1, std::string &v2);
   std::string Intersection(std::string &v1, std::string &v2);
 
+private:
   std::vector<string> different_weight_coins_;
   std::vector<string> same_weight_coins_;
 
@@ -90,7 +91,7 @@ private:
   std::string union_conis_;
 };
 
-Coins::Coins(std::string input) {}
+Coins::Coins() {}
 
 int Coins::NthSubstr(int n, const string &s, const string &p) {
   string::size_type i = s.find(p); // Find the first occurrence
@@ -135,45 +136,38 @@ std::string Coins::Intersection(std::string &v1, std::string &v2) {
 }
 
 void Coins::RemoveAppearInUnion(std::vector<string> input) {
-  std::string string_weight;
-  std::string string_difference_removed_union;
-  std::string differ_weight_coins;
 
   for (long unsigned int i = 0; i < input.size(); i++) {
     std::stringstream s(input[i]);
-    std::string left;
-    std::string right;
-    std::string weight;
-    std::string string_difference_left;
-    std::string string_difference_right;
+    std::string left, right, weight;
+    std::string difference_left, difference_right;
+
     s >> left >> right >> weight;
 
-    string_difference_left = Difference(left, union_conis_);
-    // std::cout << "==>string_difference_left " << string_difference_left <<
-    // std::endl;
-    string_difference_right = Difference(right, union_conis_);
-    // std::cout << "==>string_difference_right " << string_difference_right <<
-    // std::endl;
+    difference_left = Difference(left, union_conis_);
+    // std::cout << "==>difference_left " << difference_left << std::endl;
+    difference_right = Difference(right, union_conis_);
+    // std::cout << "==>difference_right " << difference_right << std::endl;
 
     if (weight.compare("up") == 0) {
-      if (!string_difference_left.empty())
-        heavy_coins_.push_back(string_difference_left);
-      if (!string_difference_right.empty())
-        light_coins_.push_back(string_difference_right);
+      if (!difference_left.empty())
+        heavy_coins_.push_back(difference_left);
+      if (!difference_right.empty())
+        light_coins_.push_back(difference_right);
     }
 
     if (weight.compare("down") == 0) {
-      if (!string_difference_right.empty())
-        heavy_coins_.push_back(string_difference_right);
-      if (!string_difference_left.empty())
-        light_coins_.push_back(string_difference_left);
+      if (!difference_right.empty())
+        heavy_coins_.push_back(difference_right);
+      if (!difference_left.empty())
+        light_coins_.push_back(difference_left);
     }
   }
 }
 
-void Coins::InsectionInDifferentWeight(std::vector<string> input_h,
-                                       std::vector<string> input_l,
-                                       std::ostream &os) {
+void Coins::InsectionDifferentWeight(std::vector<string> input_h,
+                                     std::vector<string> input_l,
+                                     std::ostream &os) {
   std::string intersection_heavy;
   std::string intersection_light;
   std::string temp_intersection;
@@ -236,29 +230,32 @@ void Coins::InsectionInDifferentWeight(std::vector<string> input_h,
 
 void Coins::DifferentWeightProcess(std::ostream &os) {
   RemoveAppearInUnion(different_weight_coins_);
-  InsectionInDifferentWeight(heavy_coins_, light_coins_, os);
+  InsectionDifferentWeight(heavy_coins_, light_coins_, os);
 }
 
 void Coins::SameWeightProcess() {
-  std::string temp_union;
   std::string left;
   std::string right;
-  long unsigned int i;
+  std::string first_union;
 
-  for (i = 0; i < same_weight_coins_.size(); i++) {
-    std::string str_left_right_union;
-    std::stringstream s(same_weight_coins_[i]);
+  if(!same_weight_coins_.empty()) {
+    std::stringstream s(same_weight_coins_[0]);
     s >> left >> right;
-    str_left_right_union = Union(left, right);
+    first_union = Union(left, right);
 
-    if (i == 1)
-      union_conis_ = Union(str_left_right_union, temp_union);
-    if (i == 0)
-      temp_union = str_left_right_union;
+    if (same_weight_coins_.size() == 1) {
+      union_conis_ = first_union;
+    }
+
+    if (same_weight_coins_.size() == 2) {
+      std::string second_union;
+      s = stringstream(same_weight_coins_[1]);
+      s >> left >> right;
+
+      second_union = Union(left, right);
+      union_conis_ = Union(second_union, first_union);
+    }
   }
-
-  if (i == 1)
-    union_conis_ = temp_union;
 }
 
 void Coins::StringProcess(std::string input) {
@@ -281,14 +278,13 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
 
   getline(is, input);
   count = stoi(input);
-  // std::cout << "count " << count << std::endl;
 
   while (count--) {
     if (input.empty()) {
       break;
     }
 
-    std::shared_ptr<Coins> coins = std::make_shared<Coins>(input);
+    std::shared_ptr<Coins> coins = std::make_shared<Coins>();
     {
       for (int i = 0; i < 3; i++) {
         getline(is, input);
