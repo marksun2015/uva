@@ -145,21 +145,17 @@ void Coins::RemoveAppearInUnion(std::vector<string> input) {
     s >> left >> right >> weight;
 
     difference_left = Difference(left, union_conis_);
-    // std::cout << "==>difference_left " << difference_left << std::endl;
     difference_right = Difference(right, union_conis_);
+    // std::cout << "==>difference_left " << difference_left << std::endl;
     // std::cout << "==>difference_right " << difference_right << std::endl;
 
     if (weight.compare("up") == 0) {
-      if (!difference_left.empty())
         heavy_coins_.push_back(difference_left);
-      if (!difference_right.empty())
         light_coins_.push_back(difference_right);
     }
 
     if (weight.compare("down") == 0) {
-      if (!difference_right.empty())
         heavy_coins_.push_back(difference_right);
-      if (!difference_left.empty())
         light_coins_.push_back(difference_left);
     }
   }
