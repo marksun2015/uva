@@ -146,8 +146,6 @@ void Coins::RemoveAppearInUnion(std::vector<string> input) {
 
     difference_left = Difference(left, union_conis_);
     difference_right = Difference(right, union_conis_);
-    // std::cout << "==>difference_left " << difference_left << std::endl;
-    // std::cout << "==>difference_right " << difference_right << std::endl;
 
     if (weight.compare("up") == 0) {
         heavy_coins_.push_back(difference_left);
@@ -164,64 +162,25 @@ void Coins::RemoveAppearInUnion(std::vector<string> input) {
 void Coins::InsectionDifferentWeight(std::vector<string> input_h,
                                      std::vector<string> input_l,
                                      std::ostream &os) {
-  std::string intersection_heavy;
-  std::string intersection_light;
-  std::string temp_intersection;
+  std::string heavy = input_h[0];
+  std::string light = input_l[0];
 
-  // three string intersection
-  if (input_h.size() == 3) {
-    temp_intersection = Intersection(input_h[0], input_h[1]);
-    intersection_heavy = Intersection(temp_intersection, input_h[2]);
-
-    if (!intersection_heavy.empty()) {
-      os << intersection_heavy << " is the counterfeit coin and it is heavy.\n";
-      return;
-    }
+  for (size_t i = 0; i < input_h.size(); i++) {
+    std::string temp_intersection;
+    temp_intersection = Intersection(input_h[i], heavy);
+    heavy = temp_intersection;
+  }
+ 
+  for (size_t i = 0; i < input_l.size(); i++) {
+    std::string temp_intersection;
+    temp_intersection = Intersection(input_l[i], light);
+    light = temp_intersection;
   }
 
-  if (input_l.size() == 3) {
-    temp_intersection = Intersection(input_l[0], input_l[1]);
-    intersection_light = Intersection(temp_intersection, input_l[2]);
-
-    if (!intersection_light.empty()) {
-      os << intersection_light << " is the counterfeit coin and it is light.\n";
-      return;
-    }
-  }
-
-  // two string intersection
-  if (input_h.size() == 2) {
-    intersection_heavy = Intersection(input_h[0], input_h[1]);
-
-    if (!intersection_heavy.empty()) {
-      os << intersection_heavy << " is the counterfeit coin and it is heavy.\n";
-      return;
-    }
-  }
-
-  if (input_l.size() == 2) {
-    intersection_light = Intersection(input_l[0], input_l[1]);
-
-    if (!intersection_light.empty()) {
-      os << intersection_light << " is the counterfeit coin and it is light.\n";
-      return;
-    }
-  }
-
-  // one string
-  if (input_h.size() == 1) {
-    if (!input_h[0].empty()) {
-      os << input_h[0] << " is the counterfeit coin and it is heavy.\n";
-      return;
-    }
-  }
-
-  if (input_l.size() == 1) {
-    if (!input_l[0].empty()) {
-      os << input_l[0] << " is the counterfeit coin and it is light.\n";
-      return;
-    }
-  }
+  if (!heavy.empty())
+      os << heavy << " is the counterfeit coin and it is heavy.\n";
+  if (!light.empty())
+      os << light << " is the counterfeit coin and it is light.\n";
 }
 
 void Coins::DifferentWeightProcess(std::ostream &os) {
@@ -232,24 +191,20 @@ void Coins::DifferentWeightProcess(std::ostream &os) {
 void Coins::SameWeightProcess() {
   std::string left;
   std::string right;
-  std::string first_union;
 
   if(!same_weight_coins_.empty()) {
-    std::stringstream s(same_weight_coins_[0]);
-    s >> left >> right;
-    first_union = Union(left, right);
+    std::stringstream f_ss(same_weight_coins_[0]);
+    f_ss >> left >> right;
+    union_conis_ = Union(left, right);
 
-    if (same_weight_coins_.size() == 1) {
-      union_conis_ = first_union;
-    }
-
-    if (same_weight_coins_.size() == 2) {
-      std::string second_union;
-      s = stringstream(same_weight_coins_[1]);
-      s >> left >> right;
-
-      second_union = Union(left, right);
-      union_conis_ = Union(second_union, first_union);
+    for (size_t i = 0; i < same_weight_coins_.size(); i++) {
+      std::string lr_union;
+      std::string temp_union_conis;
+      std::stringstream ss(same_weight_coins_[i]);
+      ss >> left >> right;
+      lr_union = Union(left, right);
+      temp_union_conis = Union(lr_union, union_conis_);
+      union_conis_ = temp_union_conis;
     }
   }
 }
