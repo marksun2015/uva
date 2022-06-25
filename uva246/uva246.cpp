@@ -82,194 +82,56 @@ uva246
 
 using namespace std;
 
-//#define ONLINE_JUDGE
+#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
 #endif
 
-class Coins {
+class Poker {
 public:
-  explicit Coins();
-  ~Coins() = default;
-
-  void StringProcess(std::string input);
-  void SameWeightProcess();
-  void DifferentWeightProcess(std::ostream &os);
+  explicit Poker(std::string input);
+  ~Poker() = default;
 
 private:
-  void RemoveAppearInUnion(std::vector<string> input);
-  void InsectionDifferentWeight(std::vector<string> input_h,
-                                std::vector<string> input_l,
-                                std::ostream &os);
-
-  int NthSubstr(int n, const string &s, const string &p);
-  std::string Union(std::string &v1, std::string &v2);
-  std::string Difference(std::string &v1, std::string &v2);
-  std::string Intersection(std::string &v1, std::string &v2);
-
-private:
-  std::vector<string> different_weight_coins_;
-  std::vector<string> same_weight_coins_;
-
-  std::vector<string> heavy_coins_;
-  std::vector<string> light_coins_;
-  std::string union_conis_;
+  std::deque<int> pile[7];
+  std::queue<int> handcard;
 };
 
-Coins::Coins() {}
-
-int Coins::NthSubstr(int n, const string &s, const string &p) {
-  string::size_type i = s.find(p); // Find the first occurrence
-
-  int j;
-  for (j = 1; j < n && i != string::npos; ++j)
-    i = s.find(p, i + 1); // Find the next occurrence
-
-  if (j == n)
-    return (i);
-  else
-    return (-1);
-}
-
-std::string Coins::Union(std::string &v1, std::string &v2) {
-  std::string v3;
-  std::sort(v1.begin(), v1.end());
-  std::sort(v2.begin(), v2.end());
-
-  std::set_union(v1.begin(), v1.end(), v2.begin(), v2.end(), back_inserter(v3));
-  return v3;
-}
-
-std::string Coins::Difference(std::string &v1, std::string &v2) {
-  std::string v3;
-  std::sort(v1.begin(), v1.end());
-  std::sort(v2.begin(), v2.end());
-
-  std::set_difference(v1.begin(), v1.end(), v2.begin(), v2.end(),
-                      back_inserter(v3));
-  return v3;
-}
-
-std::string Coins::Intersection(std::string &v1, std::string &v2) {
-  std::string v3;
-  std::sort(v1.begin(), v1.end());
-  std::sort(v2.begin(), v2.end());
-
-  std::set_intersection(v1.begin(), v1.end(), v2.begin(), v2.end(),
-                        back_inserter(v3));
-  return v3;
-}
-
-void Coins::RemoveAppearInUnion(std::vector<string> input) {
-
-  for (long unsigned int i = 0; i < input.size(); i++) {
-    std::stringstream s(input[i]);
-    std::string left, right, weight;
-    std::string difference_left, difference_right;
-
-    s >> left >> right >> weight;
-
-    difference_left = Difference(left, union_conis_);
-    difference_right = Difference(right, union_conis_);
-
-    if (weight.compare("up") == 0) {
-        heavy_coins_.push_back(difference_left);
-        light_coins_.push_back(difference_right);
-    }
-
-    if (weight.compare("down") == 0) {
-        heavy_coins_.push_back(difference_right);
-        light_coins_.push_back(difference_left);
-    }
-  }
-}
-
-void Coins::InsectionDifferentWeight(std::vector<string> input_h,
-                                     std::vector<string> input_l,
-                                     std::ostream &os) {
-  std::string heavy = input_h[0];
-  std::string light = input_l[0];
-
-  for (size_t i = 0; i < input_h.size(); i++) {
-    std::string temp_intersection;
-    temp_intersection = Intersection(input_h[i], heavy);
-    heavy = temp_intersection;
-  }
- 
-  for (size_t i = 0; i < input_l.size(); i++) {
-    std::string temp_intersection;
-    temp_intersection = Intersection(input_l[i], light);
-    light = temp_intersection;
-  }
-
-  if (!heavy.empty())
-      os << heavy << " is the counterfeit coin and it is heavy.\n";
-  if (!light.empty())
-      os << light << " is the counterfeit coin and it is light.\n";
-}
-
-void Coins::DifferentWeightProcess(std::ostream &os) {
-  RemoveAppearInUnion(different_weight_coins_);
-  InsectionDifferentWeight(heavy_coins_, light_coins_, os);
-}
-
-void Coins::SameWeightProcess() {
-  std::string left;
-  std::string right;
-
-  if(!same_weight_coins_.empty()) {
-    std::stringstream f_ss(same_weight_coins_[0]);
-    f_ss >> left >> right;
-    union_conis_ = Union(left, right);
-
-    for (size_t i = 0; i < same_weight_coins_.size(); i++) {
-      std::string lr_union;
-      std::string temp_union_conis;
-      std::stringstream ss(same_weight_coins_[i]);
-      ss >> left >> right;
-      lr_union = Union(left, right);
-      temp_union_conis = Union(lr_union, union_conis_);
-      union_conis_ = temp_union_conis;
-    }
-  }
-}
-
-void Coins::StringProcess(std::string input) {
-  int pos;
-
-  std::string weight;
-  pos = NthSubstr(2, input, " ");
-  weight = input.substr(pos + 1, std::string::npos);
-
-  if (weight.compare("even") == 0) {
-    same_weight_coins_.push_back(input);
-  } else {
-    different_weight_coins_.push_back(input);
+Poker::Poker(std::string input) {
+  std::stringstream ss(input);
+  int cardnumber;
+  
+  std::cout << input << std::endl;
+  while (ss >> cardnumber) {
+       // std::cout << " >"  << cardnumber ;
+    handcard.push(cardnumber);
   }
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
-  int count;
+  int count = 1;
 
-  getline(is, input);
-  count = stoi(input);
+  std::cout <<"count " << count <<std::endl;
+  while (count) {
+    getline(is, input);
+    count = stoi(input.substr(0, 1));
 
-  while (count--) {
     if (input.empty()) {
       break;
     }
+    std::cout <<"input " << input << std::endl ;
 
-    std::shared_ptr<Coins> coins = std::make_shared<Coins>();
+    std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
-      for (int i = 0; i < 3; i++) {
-        getline(is, input);
-        coins->StringProcess(input);
-      }
+      //for (int i = 0; i < 3; i++) {
+        //getline(is, input);
+        //coins->StringProcess(input);
+      //}
 
-      coins->SameWeightProcess();
-      coins->DifferentWeightProcess(os);
+      //coins->SameWeightProcess();
+      //coins->DifferentWeightProcess(os);
     }
   }
 }
