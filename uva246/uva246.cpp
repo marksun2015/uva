@@ -21,25 +21,25 @@ uva246
     after picking up those three cards becomes 7 3. Also, the bottommost card in the deck is now the 6,
     the card above it is the 9, and the one above the 9 is the 5.
     
-        first --> 5           first --> 5         first --> 7
-                  9                     9          last --> 3
-                  7                     7
-         last --> 3                     3
-                               last --> 6
+        first --> 5                     first --> 5                     first --> 7
+                  9                               9                      last --> 3
+                  7                               7
+         last --> 3                               3
+                                         last --> 6
             
-            original pile    after playing 6       after picking up
+         original pile               after playing 6                  after picking up
     
     
       If a queen were played instead of the six, 5 + 9 + 10 = 24, and 5 + 3 + 10 = 18, but 7 + 3 + 10
     = 20, so the last three cards would be picked up, leaving the pile as 5 9.
    
-                  5                     5                   5
-                  9                     9                   9
-                  7                     7
-                  3                     3
-                                        Q
+                  5                               5                             5
+                  9                               9                             9
+                  7                               7
+                  3                               3
+                                                  Q
   
-            original pile    after playing queen    after picking up
+          original pile               after playing queen               after picking up
 
       If a pile contains only three cards when the three sum to 10, 20, or 30, then the pile ”disappears”
     when the cards are picked up. That is, subsequent play skips over the position that the now-empty
@@ -88,24 +88,108 @@ using namespace std;
 #include <gmock/gmock.h>
 #endif
 
+using VecInt = std::vector<int>;
+
 class Poker {
 public:
   explicit Poker(std::string input);
   ~Poker() = default;
+  void Deal();
+  int CheckSum(std::deque<int> &pile);
 
 private:
-  std::deque<int> pile[7];
-  std::queue<int> handcard;
+  std::deque<int> pile_[7];
+  std::queue<int> handcard_;
+  VecInt comb_pos_;
 };
 
 Poker::Poker(std::string input) {
   std::stringstream ss(input);
   int cardnumber;
   
-  std::cout << input << std::endl;
   while (ss >> cardnumber) {
-       // std::cout << " >"  << cardnumber ;
-    handcard.push(cardnumber);
+    handcard_.push(cardnumber);
+  }
+
+  //print queue
+  //while (!handcard_.empty()) {
+  //    std::cout <<  handcard_.front() << ", ";
+  //    handcard_.pop();
+  //}
+}
+
+#if 0
+void Poker::Refresh(std::deque<int> &pile) {
+    handcard_.push(pile[0]);
+    handcard_.push(pile[1]);
+    handcard_.push(pile[n-1]);
+    pile.pop_front();
+    pile.pop_front();
+    pile.pop_back();
+}
+#endif
+
+int Poker::CheckSum(std::deque<int> &pile) {
+    int length = pile.size();
+        std::cout << " pile0 " << pile[0];
+        std::cout << " pile1 " << pile[1];
+        std::cout << " pile2 " << pile[2];
+    if ((pile[0]+pile[1]+pile[length-1]) % 10 == 0) {
+        std::cout << "case 1 ";
+        comb_pos_.push_back(0);
+        comb_pos_.push_back(1);
+        comb_pos_.push_back(length-1);
+        return 1;
+    } else if ((pile[0]+pile[length-2]+pile[length-1]) % 10 == 0) {
+        std::cout << "case 2 ";
+        comb_pos_.push_back(0);
+        comb_pos_.push_back(length-2);
+        comb_pos_.push_back(length-1);
+        return 1;
+    } else if ((pile[length-3]+pile[length-2]+pile[length-1]) % 10 == 0) {
+        std::cout << "case 3 ";
+        comb_pos_.push_back(length-3);
+        comb_pos_.push_back(length-2);
+        comb_pos_.push_back(length-1);
+        return 1;
+    }
+    return 0;
+}
+
+void Poker::Deal() {
+  int i,j;
+
+  //init card
+  for(i = 0; i < 2; i++) {
+    for(j = 0; j < 7; j++) {
+      pile_[j].push_back(handcard_.front());
+      handcard_.pop();
+    }
+  }
+
+      //int len = pile_[0].size();
+      //std::cout << "size " << len << std::endl;
+      //std::cout << "0 " << pile_[0][len-2] << std::endl;
+      //std::cout << "1 " << pile_[0][len-1] << std::endl;
+  
+  //deal
+  while(1) {
+    for(j = 0; j < 7; j++) {
+      //while(!pile[j].empty()) {
+      //  std::cout <<  pile[j].front() << ", "; 
+      //  pile[j].pop_front() ; 
+      // }
+      //std::cout << std::endl;
+     
+      pile_[j].push_back(handcard_.front());
+      handcard_.pop();
+      if(CheckSum(pile_[j])) {
+          std::cout<< comb_pos_[0] << std::endl;
+          std::cout<< comb_pos_[1] << std::endl;
+          std::cout<< comb_pos_[2] << std::endl;
+      }
+        //Refresh(pile[j]);
+    }
   }
 }
 
@@ -113,7 +197,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int count = 1;
 
-  std::cout <<"count " << count <<std::endl;
+  //std::cout <<"count " << count <<std::endl;
   while (count) {
     getline(is, input);
     count = stoi(input.substr(0, 1));
@@ -121,10 +205,11 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     if (input.empty()) {
       break;
     }
-    std::cout <<"input " << input << std::endl ;
+    //std::cout <<"input " << input << std::endl ;
 
     std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
+        poker->Deal();
       //for (int i = 0; i < 3; i++) {
         //getline(is, input);
         //coins->StringProcess(input);
