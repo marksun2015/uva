@@ -57,12 +57,9 @@ uva246
     of the game is repeated.) Use the format shown in the “Sample Output” section.
     
     Sample Input
-    2 6 5 10 10 4 10 10 10 4 5 10 4 5 10 9 7 6 1 7 6 9 5 3 10 10 4 10 9 2 1
-    10 1 10 10 10 3 10 9 8 10 8 7 1 2 8 6 7 3 3 8 2
-    4 3 2 10 8 10 6 8 9 5 8 10 5 3 5 4 6 9 9 1 7 6 3 5 10 10 8 10 9 10 10 7
-    2 6 10 10 4 10 1 3 10 1 1 10 2 2 10 4 10 7 7 10
-    10 5 4 3 5 7 10 8 2 3 9 10 8 4 5 1 7 6 7 2 6 9 10 2 3 10 3 4 4 9 10 1 1
-    10 5 10 10 1 8 10 7 8 10 6 10 10 10 9 6 2 10 10
+    2 6 5 10 10 4 10 10 10 4 5 10 4 5 10 9 7 6 1 7 6 9 5 3 10 10 4 10 9 2 1 10 1 10 10 10 3 10 9 8 10 8 7 1 2 8 6 7 3 3 8 2
+    4 3 2 10 8 10 6 8 9 5 8 10 5 3 5 4 6 9 9 1 7 6 3 5 10 10 8 10 9 10 10 7 2 6 10 10 4 10 1 3 10 1 1 10 2 2 10 4 10 7 7 10
+    10 5 4 3 5 7 10 8 2 3 9 10 8 4 5 1 7 6 7 2 6 9 10 2 3 10 3 4 4 9 10 1 1 10 5 10 10 1 8 10 7 8 10 6 10 10 10 9 6 2 10 10
     0
     
     Sample Output
@@ -82,7 +79,7 @@ uva246
 
 using namespace std;
 
-#define ONLINE_JUDGE
+//#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -90,26 +87,50 @@ using namespace std;
 
 using VecInt = std::vector<int>;
 
+enum MaxValue {
+  WIN ,
+  LOSS,
+  DRAW
+};
+
 class Poker {
 public:
   explicit Poker(std::string input);
   ~Poker() = default;
   void Deal();
+  void Output(std::ostream &os);
   int CheckSum(std::deque<int> &pile);
+  void Refresh(std::deque<int> &pile, std::queue<int> &handcard);
 
 private:
+  int step_;
+  int result_;
+
+private:
+  int pile_number_;
+  int combination_card_;
   std::deque<int> pile_[7];
   std::queue<int> handcard_;
   VecInt comb_pos_;
+  std::map<int, string> mapValue;
 };
 
-Poker::Poker(std::string input) {
+Poker::Poker(std::string input)
+ :step_(0),
+  pile_number_(7),
+  combination_card_(3){
   std::stringstream ss(input);
   int cardnumber;
   
   while (ss >> cardnumber) {
     handcard_.push(cardnumber);
   }
+
+  mapValue = {
+    {WIN,   "Win :"},
+    {LOSS , "Loss:"},
+    {DRAW , "Draw:"}
+  };
 
   //print queue
   //while (!handcard_.empty()) {
@@ -118,98 +139,163 @@ Poker::Poker(std::string input) {
   //}
 }
 
-#if 0
-void Poker::Refresh(std::deque<int> &pile) {
-    handcard_.push(pile[0]);
-    handcard_.push(pile[1]);
-    handcard_.push(pile[n-1]);
-    pile.pop_front();
-    pile.pop_front();
-    pile.pop_back();
+void Poker::Output(std::ostream &os) {
+  os << mapValue[result_] << " " << step_ << std::endl;
 }
-#endif
+
+void Poker::Refresh(std::deque<int> &pile, std::queue<int> &handcard) {
+    for(int i = 0; i < combination_card_; i++) {
+      //std::cout << ">>i " << i << " " << pile[comb_pos_[i]] << std::endl;
+      handcard_.push(pile[comb_pos_[i]]);
+    }
+
+    auto it = pile.begin();
+    for(int i = (combination_card_ - 1); i >= 0; i--) {
+      pile.erase((it + comb_pos_[i]));
+    }
+
+    comb_pos_.clear();
+}
 
 int Poker::CheckSum(std::deque<int> &pile) {
-    int length = pile.size();
-        std::cout << " pile0 " << pile[0];
-        std::cout << " pile1 " << pile[1];
-        std::cout << " pile2 " << pile[2];
-    if ((pile[0]+pile[1]+pile[length-1]) % 10 == 0) {
-        std::cout << "case 1 ";
-        comb_pos_.push_back(0);
-        comb_pos_.push_back(1);
-        comb_pos_.push_back(length-1);
-        return 1;
-    } else if ((pile[0]+pile[length-2]+pile[length-1]) % 10 == 0) {
-        std::cout << "case 2 ";
-        comb_pos_.push_back(0);
-        comb_pos_.push_back(length-2);
-        comb_pos_.push_back(length-1);
-        return 1;
-    } else if ((pile[length-3]+pile[length-2]+pile[length-1]) % 10 == 0) {
-        std::cout << "case 3 ";
-        comb_pos_.push_back(length-3);
-        comb_pos_.push_back(length-2);
-        comb_pos_.push_back(length-1);
-        return 1;
-    }
-    return 0;
+  int length = pile.size();
+  //std::cout << " length " << length << std::endl;
+  if ((pile[0]+pile[1]+pile[length-1]) % 10 == 0) {
+    //std::cout << " case 1 " << std::endl;
+    //std::cout << " " << pile[0] << " "<< pile[1] << " "<< pile[length - 1] << std::endl;
+    comb_pos_.push_back(0);
+    comb_pos_.push_back(1);
+    comb_pos_.push_back(length-1);
+    return 1;
+  } else if ((pile[0]+pile[length-2]+pile[length-1]) % 10 == 0) {
+    //std::cout << " case 2 "<< std::endl;
+    //std::cout << " " << pile[0] << " " << pile[length -2] << " "<< pile[length - 1] << std::endl;
+    comb_pos_.push_back(0);
+    comb_pos_.push_back(length-2);
+    comb_pos_.push_back(length-1);
+    return 1;
+  } else if ((pile[length-3]+pile[length-2]+pile[length-1]) % 10 == 0) {
+    //std::cout << " case 3 "<< std::endl;
+    //std::cout << " " << pile[length-3] << " "<< pile[length -2] << " "<< pile[length - 1] << std::endl;
+    comb_pos_.push_back(length-3);
+    comb_pos_.push_back(length-2);
+    comb_pos_.push_back(length-1);
+    return 1;
+  }
+  //std::cout << " return 0 "<< std::endl;
+  return 0;
 }
 
 void Poker::Deal() {
   int i,j;
 
+  //std::cout << " Poker::Deal() ";  
   //init card
-  for(i = 0; i < 2; i++) {
-    for(j = 0; j < 7; j++) {
+  for(i = 0; i < (combination_card_-1); i++) {
+    for(j = 0; j < pile_number_; j++) {
       pile_[j].push_back(handcard_.front());
       handcard_.pop();
+      step_++;
     }
   }
 
-      //int len = pile_[0].size();
-      //std::cout << "size " << len << std::endl;
-      //std::cout << "0 " << pile_[0][len-2] << std::endl;
-      //std::cout << "1 " << pile_[0][len-1] << std::endl;
-  
   //deal
   while(1) {
-    for(j = 0; j < 7; j++) {
-      //while(!pile[j].empty()) {
-      //  std::cout <<  pile[j].front() << ", "; 
-      //  pile[j].pop_front() ; 
-      // }
-      //std::cout << std::endl;
-     
-      pile_[j].push_back(handcard_.front());
-      handcard_.pop();
-      if(CheckSum(pile_[j])) {
-          std::cout<< comb_pos_[0] << std::endl;
-          std::cout<< comb_pos_[1] << std::endl;
-          std::cout<< comb_pos_[2] << std::endl;
+    //std::cout << std::endl;
+    for(j = 0; j < pile_number_; j++) {
+
+      if (handcard_.size() == 52) {
+        result_ = WIN;
+        return;
       }
-        //Refresh(pile[j]);
-    }
-  }
+
+      if (handcard_.size() == 0) {
+        result_ = LOSS;
+        return;
+      }
+
+      if(!pile_[j].empty()) {
+        //while(!pile[j].empty()) {
+        //  std::cout <<  pile[j].front() << ", "; 
+        //  pile[j].pop_front() ; 
+        // }
+        //std::cout << std::endl;
+     
+        //std::cout << " handfront "  << handcard_.front() <<std::endl; 
+        //std::cout <<"---handcard_size: " << handcard_.size() <<  std::endl ;
+        pile_[j].push_back(handcard_.front());
+        handcard_.pop();
+        step_++;
+
+        //////////////////test  
+        //std::cout <<"--pile " << j  << "--"<< std::endl ;
+        //for(auto &q: pile_[j]) {
+        //    std::cout << " " << q ;
+        //}
+        //std::cout << std::endl;
+        //////////////////
+
+        while((int)pile_[j].size() >= combination_card_) {
+          if(CheckSum(pile_[j])) {
+            Refresh(pile_[j], handcard_);
+          } else {
+            break;
+          }
+        }
+      } 
+      //////////////////test  
+      //else {
+      //  std::cout << "---> j: " << j << " empty" << std::endl;
+      //}
+      ///////////////////
+    } //for loop 
+   
+    //test 
+    //std::cout << "=============== " << std::endl;
+    //std::queue<int> testq = handcard_ ;
+    //while (!testq.empty())
+    //{
+    //    std::cout << testq.front() <<" ";
+    //    testq.pop();
+    //}
+    //std::cout << std::endl;
+    ///////////////////
+  } //while
+
+  // test printf 
+  //for(j = 0; j < 7; j++) { 
+  //  while(!pile_[j].empty()) {
+  //    std::cout <<  pile_[j].front() << ", "; 
+  //    pile_[j].pop_front() ; 
+  //  }
+  //    std::cout << "---" << std::endl; 
+  //}
+     
+  //while (!handcard_.empty())
+  //{
+  //    std::cout << handcard_.front() <<" ";
+  //    handcard_.pop();
+  //}
+  //std::cout << "---" << std::endl; 
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int count = 1;
 
-  //std::cout <<"count " << count <<std::endl;
-  while (count) {
+  while (1) {
     getline(is, input);
     count = stoi(input.substr(0, 1));
+    //std::cout <<"count " << count <<std::endl;
 
-    if (input.empty()) {
+    if (count == 0) {
       break;
     }
     //std::cout <<"input " << input << std::endl ;
-
     std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
-        poker->Deal();
+      poker->Deal();
+      poker->Output(os);
       //for (int i = 0; i < 3; i++) {
         //getline(is, input);
         //coins->StringProcess(input);
@@ -232,15 +318,16 @@ int main(int argc, char **argv) {
 }
 
 #ifndef ONLINE_JUDGE
-TEST(uva608, test_string1) {
-  std::istringstream iss("1\n"
-                         "ABCD EFGH even\n"
-                         "ABCI EFJK up\n"
-                         "ABIJ EFGH even\n");
+TEST(uva246, test_string1) {
+  std::istringstream iss(
+    "2 6 5 10 10 4 10 10 10 4 5 10 4 5 10 9 7 6 1 7 6 9 5 3 10 10 4 10 9 2 1 10 1 10 10 10 3 10 9 8 10 8 7 1 2 8 6 7 3 3 8 2\n"
+    "4 3 2 10 8 10 6 8 9 5 8 10 5 3 5 4 6 9 9 1 7 6 3 5 10 10 8 10 9 10 10 7 2 6 10 10 4 10 1 3 10 1 1 10 2 2 10 4 10 7 7 10\n"
+    "0\n");
 
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
-  EXPECT_EQ("K is the counterfeit coin and it is light.\n", oss.str());
+  EXPECT_EQ("Win : 66\n"
+            "Loss: 82\n",
+            oss.str());
 }
-
 #endif
