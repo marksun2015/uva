@@ -95,13 +95,12 @@ enum MaxValue {
 
 struct compare
 {
-    std::queue<int> key;
-    compare(std::queue<int> &state): key(state) {}
+  std::queue<int> key;
+  compare(std::queue<int> &state): key(state) {}
  
-    bool operator()(std::queue<int> &i) {
-        return (i == key);
-        //return 0;
-    }
+  bool operator()(std::queue<int> &i) {
+    return (i == key);
+  }
 };
 
 class Poker {
@@ -143,12 +142,6 @@ Poker::Poker(std::string input)
     {LOSS , "Loss: "},
     {DRAW , "Draw: "}
   };
-
-  //print queue
-  //while (!handcard_.empty()) {
-  //    std::cout <<  handcard_.front() << ", ";
-  //    handcard_.pop();
-  //}
 }
 
 void Poker::Output(std::ostream &os) {
@@ -171,38 +164,31 @@ void Poker::Refresh(std::deque<int> &pile, std::queue<int> &handcard) {
 
 int Poker::CheckSum(std::deque<int> &pile) {
   int length = pile.size();
-  //std::cout << " length " << length << std::endl;
   if ((pile[0]+pile[1]+pile[length-1]) % 10 == 0) {
-    //std::cout << " case 1 " << std::endl;
     //std::cout << " " << pile[0] << " "<< pile[1] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(0);
     comb_pos_.push_back(1);
     comb_pos_.push_back(length-1);
     return 1;
   } else if ((pile[0]+pile[length-2]+pile[length-1]) % 10 == 0) {
-    //std::cout << " case 2 "<< std::endl;
     //std::cout << " " << pile[0] << " " << pile[length -2] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(0);
     comb_pos_.push_back(length-2);
     comb_pos_.push_back(length-1);
     return 1;
   } else if ((pile[length-3]+pile[length-2]+pile[length-1]) % 10 == 0) {
-    //std::cout << " case 3 "<< std::endl;
     //std::cout << " " << pile[length-3] << " "<< pile[length -2] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(length-3);
     comb_pos_.push_back(length-2);
     comb_pos_.push_back(length-1);
     return 1;
   }
-  //std::cout << " return 0 "<< std::endl;
   return 0;
 }
 
 void Poker::Deal() {
   int i,j,k;
 
-  //std::cout << " Poker::Deal() ";  
-  //init card
   for(i = 0; i < (combination_card_-1); i++) {
     for(j = 0; j < pile_number_; j++) {
       pile_[j].push_back(handcard_.front());
@@ -213,40 +199,18 @@ void Poker::Deal() {
 
   //deal
   while(1) {
-    //std::cout << std::endl;
     for(j = 0; j < pile_number_; j++) {
-      if (handcard_.size() == 52) {
-        result_ = WIN;
-        //goto breakp;
-        return;
-      }
-
-      if (handcard_.size() == 0) {
-        result_ = LOSS;
-        //goto breakp;
-        return;
-      }
-    
       if(!pile_[j].empty()) {
-        //while(!pile[j].empty()) {
-        //  std::cout <<  pile[j].front() << ", "; 
-        //  pile[j].pop_front() ; 
-        // }
-        //std::cout << std::endl;
-     
-        //std::cout << " handfront "  << handcard_.front() <<std::endl; 
-        //std::cout <<"---handcard_size: " << handcard_.size() <<  std::endl ;
         pile_[j].push_back(handcard_.front());
         handcard_.pop();
         step_++;
 
-        //////////////////test  
+        ///test  
         //std::cout <<"--pile " << j  << "--"<< std::endl ;
         //for(auto &q: pile_[j]) {
         //    std::cout << " " << q ;
         //}
         //std::cout << std::endl;
-        //////////////////
 
         while((int)pile_[j].size() >= combination_card_) {
           if(CheckSum(pile_[j])) {
@@ -255,7 +219,20 @@ void Poker::Deal() {
             break;
           }
         }
-#if 1
+
+        /* check Win case */
+        if (handcard_.size() == 52) {
+          result_ = WIN;
+          return;
+        }
+
+        /* check Loss case */
+        if (handcard_.size() == 0) {
+          result_ = LOSS;
+          return;
+        }
+
+        /* check Draw case */
         std::queue<int> state = handcard_;
         for(k = 0; k < pile_number_; k++) {
           for(auto &q: pile_[k]) {
@@ -264,81 +241,14 @@ void Poker::Deal() {
         }
 
         if (std::find_if(statecard_.begin(), statecard_.end(), compare(state)) != statecard_.end()) {
-          //std::cout << "Element found" << std::endl;
           result_ = DRAW;
           return;
-        }
-        else {
-          //std::cout << "Element not found"<< std::endl;
+        } else {
           statecard_.push_back(state);
         }
-#endif
-      }  //pile not empty
-      //////////////////test  
-      //else {
-      //  std::cout << "---> j: " << j << " empty" << std::endl;
-      //}
-      ///////////////////
-    } //for loop 
-
-    
-#if 0
-      std::queue<int> state = handcard_;
-      for(k = 0; k < pile_number_; k++) {
-        for(auto &q: pile_[k]) {
-         state.push(q); 
-         //std::cout << q << " " ;
-        }
-      }
-
-      if (std::find_if(statecard_.begin(), statecard_.end(), compare(state)) != statecard_.end()) {
-          std::cout << "Element found" << std::endl;
-          return;
-      }
-      else {
-        std::cout << "Element not found"<< std::endl;
-        statecard_.push_back(state);
-      }
-#endif
-    //test 
-    //std::cout << "=============== " << std::endl;
-    //std::queue<int> testq = handcard_ ;
-    //while (!testq.empty())
-    //{
-    //    std::cout << testq.front() <<" ";
-    //    testq.pop();
-    //}
-    //std::cout << std::endl;
-    ///////////////////
-  } //while
-
-//breakp:
-  //std::cout << "break while loop " << std::endl;
-
-  //for(auto it : statecard_) {
-  //      std::queue<int> state = it;
-  //      while (!state.empty()) {
-  //          std::cout << state.front() <<" ";
-  //          state.pop();
-  //      }
-  //      std::cout << std::endl;
-  //}
-
-  // test printf 
-  //for(j = 0; j < 7; j++) { 
-  //  while(!pile_[j].empty()) {
-  //    std::cout <<  pile_[j].front() << ", "; 
-  //    pile_[j].pop_front() ; 
-  //  }
-  //    std::cout << "---" << std::endl; 
-  //}
-     
-  //while (!handcard_.empty())
-  //{
-  //    std::cout << handcard_.front() <<" ";
-  //    handcard_.pop();
-  //}
-  //std::cout << "---" << std::endl; 
+      }//pile not empty
+    }//for loop 
+  }//while
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
@@ -353,6 +263,7 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     if (count == 0) {
       break;
     }
+
     //std::cout <<"input " << input << std::endl ;
     std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
