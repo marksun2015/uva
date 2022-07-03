@@ -93,6 +93,17 @@ enum MaxValue {
   DRAW
 };
 
+struct compare
+{
+    std::queue<int> key;
+    compare(std::queue<int> &state): key(state) {}
+ 
+    bool operator()(std::queue<int> &i) {
+        return (i == key);
+        //return 0;
+    }
+};
+
 class Poker {
 public:
   explicit Poker(std::string input);
@@ -109,9 +120,10 @@ private:
 private:
   int pile_number_;
   int combination_card_;
+  VecInt comb_pos_;
   std::deque<int> pile_[7];
   std::queue<int> handcard_;
-  VecInt comb_pos_;
+  std::vector<std::queue<int>> statecard_;
   std::map<int, string> mapValue;
 };
 
@@ -127,9 +139,9 @@ Poker::Poker(std::string input)
   }
 
   mapValue = {
-    {WIN,   "Win :"},
-    {LOSS , "Loss:"},
-    {DRAW , "Draw:"}
+    {WIN,   "Win : "},
+    {LOSS , "Loss: "},
+    {DRAW , "Draw: "}
   };
 
   //print queue
@@ -140,7 +152,7 @@ Poker::Poker(std::string input)
 }
 
 void Poker::Output(std::ostream &os) {
-  os << mapValue[result_] << " " << step_ << std::endl;
+  os << mapValue[result_] << step_ << std::endl;
 }
 
 void Poker::Refresh(std::deque<int> &pile, std::queue<int> &handcard) {
@@ -187,7 +199,7 @@ int Poker::CheckSum(std::deque<int> &pile) {
 }
 
 void Poker::Deal() {
-  int i,j;
+  int i,j,k;
 
   //std::cout << " Poker::Deal() ";  
   //init card
@@ -203,17 +215,18 @@ void Poker::Deal() {
   while(1) {
     //std::cout << std::endl;
     for(j = 0; j < pile_number_; j++) {
-
       if (handcard_.size() == 52) {
         result_ = WIN;
+        //goto breakp;
         return;
       }
 
       if (handcard_.size() == 0) {
         result_ = LOSS;
+        //goto breakp;
         return;
       }
-
+    
       if(!pile_[j].empty()) {
         //while(!pile[j].empty()) {
         //  std::cout <<  pile[j].front() << ", "; 
@@ -242,14 +255,51 @@ void Poker::Deal() {
             break;
           }
         }
-      } 
+#if 1
+        std::queue<int> state = handcard_;
+        for(k = 0; k < pile_number_; k++) {
+          for(auto &q: pile_[k]) {
+           state.push(q); 
+          }
+        }
+
+        if (std::find_if(statecard_.begin(), statecard_.end(), compare(state)) != statecard_.end()) {
+          //std::cout << "Element found" << std::endl;
+          result_ = DRAW;
+          return;
+        }
+        else {
+          //std::cout << "Element not found"<< std::endl;
+          statecard_.push_back(state);
+        }
+#endif
+      }  //pile not empty
       //////////////////test  
       //else {
       //  std::cout << "---> j: " << j << " empty" << std::endl;
       //}
       ///////////////////
     } //for loop 
-   
+
+    
+#if 0
+      std::queue<int> state = handcard_;
+      for(k = 0; k < pile_number_; k++) {
+        for(auto &q: pile_[k]) {
+         state.push(q); 
+         //std::cout << q << " " ;
+        }
+      }
+
+      if (std::find_if(statecard_.begin(), statecard_.end(), compare(state)) != statecard_.end()) {
+          std::cout << "Element found" << std::endl;
+          return;
+      }
+      else {
+        std::cout << "Element not found"<< std::endl;
+        statecard_.push_back(state);
+      }
+#endif
     //test 
     //std::cout << "=============== " << std::endl;
     //std::queue<int> testq = handcard_ ;
@@ -261,6 +311,18 @@ void Poker::Deal() {
     //std::cout << std::endl;
     ///////////////////
   } //while
+
+//breakp:
+  //std::cout << "break while loop " << std::endl;
+
+  //for(auto it : statecard_) {
+  //      std::queue<int> state = it;
+  //      while (!state.empty()) {
+  //          std::cout << state.front() <<" ";
+  //          state.pop();
+  //      }
+  //      std::cout << std::endl;
+  //}
 
   // test printf 
   //for(j = 0; j < 7; j++) { 
@@ -296,13 +358,6 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
     {
       poker->Deal();
       poker->Output(os);
-      //for (int i = 0; i < 3; i++) {
-        //getline(is, input);
-        //coins->StringProcess(input);
-      //}
-
-      //coins->SameWeightProcess();
-      //coins->DifferentWeightProcess(os);
     }
   }
 }
@@ -322,12 +377,14 @@ TEST(uva246, test_string1) {
   std::istringstream iss(
     "2 6 5 10 10 4 10 10 10 4 5 10 4 5 10 9 7 6 1 7 6 9 5 3 10 10 4 10 9 2 1 10 1 10 10 10 3 10 9 8 10 8 7 1 2 8 6 7 3 3 8 2\n"
     "4 3 2 10 8 10 6 8 9 5 8 10 5 3 5 4 6 9 9 1 7 6 3 5 10 10 8 10 9 10 10 7 2 6 10 10 4 10 1 3 10 1 1 10 2 2 10 4 10 7 7 10\n"
+    "10 5 4 3 5 7 10 8 2 3 9 10 8 4 5 1 7 6 7 2 6 9 10 2 3 10 3 4 4 9 10 1 1 10 5 10 10 1 8 10 7 8 10 6 10 10 10 9 6 2 10 10\n"
     "0\n");
 
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
   EXPECT_EQ("Win : 66\n"
-            "Loss: 82\n",
+            "Loss: 82\n"
+            "Draw: 73\n",
             oss.str());
 }
 #endif
