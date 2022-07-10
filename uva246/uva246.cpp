@@ -93,6 +93,7 @@ enum MaxValue {
   DRAW
 };
 
+
 class Poker {
 public:
   explicit Poker(std::string input);
@@ -122,8 +123,9 @@ Poker::Poker(std::string input)
   combination_card_(3){
   std::stringstream ss(input);
   int cardnumber;
-  
-  while (ss >> cardnumber) {
+
+  for (int i = 0; i < 52; i++) {
+    ss >> cardnumber;
     handcard_.push(cardnumber);
   }
 
