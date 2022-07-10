@@ -93,7 +93,6 @@ enum MaxValue {
   DRAW
 };
 
-
 class Poker {
 public:
   explicit Poker(std::string input);
@@ -101,7 +100,7 @@ public:
   void Deal();
   void Output(std::ostream &os);
   int CheckSum(std::deque<int> &pile);
-  void Refresh(std::deque<int> &pile, std::queue<int> &handcard);
+  void Refresh(std::deque<int> &pile, std::deque<int> &handcard);
 
 private:
   int step_;
@@ -112,8 +111,8 @@ private:
   int combination_card_;
   VecInt comb_pos_;
   std::deque<int> pile_[7];
-  std::queue<int> handcard_;
-  std::vector<std::queue<int>> statecard_;
+  std::deque<int> handcard_;
+  std::vector<std::deque<int>> statecard_;
   std::map<int, string> mapValue;
 };
 
@@ -126,7 +125,7 @@ Poker::Poker(std::string input)
 
   for (int i = 0; i < 52; i++) {
     ss >> cardnumber;
-    handcard_.push(cardnumber);
+    handcard_.push_back(cardnumber);
   }
 
   mapValue = {
@@ -140,10 +139,10 @@ void Poker::Output(std::ostream &os) {
   os << mapValue[result_] << step_ << std::endl;
 }
 
-void Poker::Refresh(std::deque<int> &pile, std::queue<int> &handcard) {
+void Poker::Refresh(std::deque<int> &pile, std::deque<int> &handcard) {
     for(int i = 0; i < combination_card_; i++) {
       //std::cout << ">>i " << i << " " << pile[comb_pos_[i]] << std::endl;
-      handcard_.push(pile[comb_pos_[i]]);
+      handcard_.push_back(pile[comb_pos_[i]]);
     }
 
     auto it = pile.begin();
@@ -184,17 +183,16 @@ void Poker::Deal() {
   for(i = 0; i < (combination_card_-1); i++) {
     for(j = 0; j < pile_number_; j++) {
       pile_[j].push_back(handcard_.front());
-      handcard_.pop();
+      handcard_.pop_front();
       step_++;
     }
   }
 
-  //deal
   while(1) {
     for(j = 0; j < pile_number_; j++) {
       if(!pile_[j].empty()) {
         pile_[j].push_back(handcard_.front());
-        handcard_.pop();
+        handcard_.pop_front();
         step_++;
 
         ///test  
@@ -225,11 +223,9 @@ void Poker::Deal() {
         }
 
         /* save state */
-        std::queue<int> state = handcard_;
+        std::deque<int> state = handcard_;
         for(k = 0; k < pile_number_; k++) {
-          for(auto &q: pile_[k]) {
-           state.push(q); 
-          }
+          state.insert(state.end(), pile_[k].begin(), pile_[k].end());
         }
 
         /* check Draw case */
@@ -253,13 +249,11 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   while (1) {
     getline(is, input);
     count = stoi(input.substr(0, 1));
-    //std::cout <<"count " << count <<std::endl;
 
     if (count == 0) {
       break;
     }
 
-    //std::cout <<"input " << input << std::endl ;
     std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
     {
       poker->Deal();
