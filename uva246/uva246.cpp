@@ -93,16 +93,6 @@ enum MaxValue {
   DRAW
 };
 
-struct compare
-{
-  std::queue<int> key;
-  compare(std::queue<int> &state): key(state) {}
- 
-  bool operator()(std::queue<int> &i) {
-    return (i == key);
-  }
-};
-
 class Poker {
 public:
   explicit Poker(std::string input);
@@ -232,7 +222,7 @@ void Poker::Deal() {
           return;
         }
 
-        /* check Draw case */
+        /* save state */
         std::queue<int> state = handcard_;
         for(k = 0; k < pile_number_; k++) {
           for(auto &q: pile_[k]) {
@@ -240,12 +230,15 @@ void Poker::Deal() {
           }
         }
 
-        if (std::find_if(statecard_.begin(), statecard_.end(), compare(state)) != statecard_.end()) {
+        /* check Draw case */
+        auto fstate = (std::find(statecard_.begin(), statecard_.end(), state));
+        if (fstate != statecard_.end()){
           result_ = DRAW;
           return;
         } else {
           statecard_.push_back(state);
         }
+
       }//pile not empty
     }//for loop 
   }//while
