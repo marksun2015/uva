@@ -140,15 +140,12 @@ void Poker::Output(std::ostream &os) {
 }
 
 void Poker::Refresh(std::deque<int> &pile, std::deque<int> &handcard) {
-    for(int i = 0; i < combination_card_; i++) {
-      //std::cout << ">>i " << i << " " << pile[comb_pos_[i]] << std::endl;
+    for(int i = 0; i < combination_card_; i++)
       handcard_.push_back(pile[comb_pos_[i]]);
-    }
 
     auto it = pile.begin();
-    for(int i = (combination_card_ - 1); i >= 0; i--) {
+    for(int i = (combination_card_ - 1); i >= 0; i--)
       pile.erase((it + comb_pos_[i]));
-    }
 
     comb_pos_.clear();
 }
@@ -156,19 +153,16 @@ void Poker::Refresh(std::deque<int> &pile, std::deque<int> &handcard) {
 int Poker::CheckSum(std::deque<int> &pile) {
   int length = pile.size();
   if ((pile[0]+pile[1]+pile[length-1]) % 10 == 0) {
-    //std::cout << " " << pile[0] << " "<< pile[1] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(0);
     comb_pos_.push_back(1);
     comb_pos_.push_back(length-1);
     return 1;
   } else if ((pile[0]+pile[length-2]+pile[length-1]) % 10 == 0) {
-    //std::cout << " " << pile[0] << " " << pile[length -2] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(0);
     comb_pos_.push_back(length-2);
     comb_pos_.push_back(length-1);
     return 1;
   } else if ((pile[length-3]+pile[length-2]+pile[length-1]) % 10 == 0) {
-    //std::cout << " " << pile[length-3] << " "<< pile[length -2] << " "<< pile[length - 1] << std::endl;
     comb_pos_.push_back(length-3);
     comb_pos_.push_back(length-2);
     comb_pos_.push_back(length-1);
@@ -197,9 +191,7 @@ void Poker::Deal() {
 
         ///test  
         //std::cout <<"--pile " << j  << "--"<< std::endl ;
-        //for(auto &q: pile_[j]) {
-        //    std::cout << " " << q ;
-        //}
+        //for(auto &q: pile_[j]) { std::cout << " " << q ;}
         //std::cout << std::endl;
 
         while((int)pile_[j].size() >= combination_card_) {
