@@ -73,48 +73,92 @@ struct RobotNode {
   int orientation;
 };
 
-#if 0
+enum Direction {
+    NORTH = 0,
+    EAST = 1,
+    SOUTH = 2,
+    WEST = 3,
+};
+
+#if 1
 class Maze {
 public:
   explicit Maze(string input);
   ~Maze() = default;
 
-  void InitCombPosition(int number);
-  void CombMaxValue(int offset, int k, int replace_number);
-  std::string GetMaxValue() { return mapValue[max_value_]; }
+  void InitMap(char event);
+  void EventProcess(char event);
 
 private:
-  std::vector<RobotNode> Robot_node_;
-  std::vector<int> combination_;
-  std::map<int, string> mapValue;
-  int max_value_;
+  RobotNode Robot_node_;
+ // std::vector<int> combination_;
+ // std::map<int, string> mapValue;
+  int robot_dir_;
 };
 
-Poker::Poker(string input) : max_value_(0) {
+Maze::Maze(string input) {
+    
+}
+
+Maze::EventProcess(char event) {
+    switch (event) {
+        case Key_Right: 
+            Robot_node_.orientation  = (Robot_node_.orientation + 1) % 4;
+            //SetPosition(3, 0);  break;
+        case Key_Left:  
+            Robot_node_.orientation  = (Robot_node_.orientation + 3) % 4;
+            //SetPosition(3, 0); break;
+        case Key_Forward:    
+            SetPosition(0, -3);
+        //case Key_Quit:  
+            //SetPosition(0, 3);  break;
+    }
+
 }
 #endif
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int loop;
+  char quit;
 
   getline(is, input);
   loop = stoi(input);
-
   os << " loop: " << loop << std::endl;
-  while (loop) {
-    while (1) {
-        getline(is, input);
-        if (input.empty()) {
-          break;
-        }
+  while (loop--) {
+    //os << " step1 " << loop << std::endl;
+    std::shared_ptr<Maze> maze = std::make_shared<Maze>(input);
+    {
+        while (1) {
+            //os << " step2 " << std::endl;
+            getline(is, input);
+            os << input << std::endl;
 
-        os << input << std::endl;
-        //std::shared_ptr<Poker> poker = std::make_shared<Poker>(input);
-        //{
-        //}
-    } //while
-    loop --;
+            if(input.empty())
+                continue;
+
+            //os << " step3 " << std::endl;
+            for (const char c : input)
+            {
+                //os << " "<< c ;
+                if (c == 'Q')
+                {
+                    quit = 'Q';
+                }
+            }
+            //os << std::endl;
+
+            if (quit == 'Q')
+            {
+                break;
+            }
+            
+            //{
+            //}
+        } //while
+    }
+    //loop --;
+    os << " loop--: " << loop << std::endl;
   } //while
 }
 
@@ -148,4 +192,103 @@ TEST(uva10377, test_string1) {
   solve_uva_problem(iss, oss);
   EXPECT_EQ("5 6 W\n",oss.str());
 }
+
+TEST(uva10377, test_string2) {
+  std::istringstream iss("4\n"
+                        "\n"
+                        "20 21\n"
+                        "*********************\n"
+                        "*       * ** *  * * *\n"
+                        "* ***  *     *   *  *\n"
+                        "**  *   * **  *     *\n"
+                        "****    *          **\n"
+                        "* **  ***        ****\n"
+                        "* *   *        * ** *\n"
+                        "**    *       *   * *\n"
+                        "*     ** *  ** * *  *\n"
+                        "* *      *          *\n"
+                        "**** ** *       * ***\n"
+                        "***    *    *   *   *\n"
+                        "*  *   *   *  *** ***\n"
+                        "**    *   *   *   * *\n"
+                        "*    *    *         *\n"
+                        "*       *    * * *  *\n"
+                        "*     *    **    ** *\n"
+                        "*           * * * * *\n"
+                        "*  *    *  **   *   *\n"
+                        "*********************\n"
+                        "8 11\n"
+                        "LFF FFRRF R F   F RL LRRLFRLRF F LR LF RFL  FL LRLR FL FL FRLFRRLLRR RFRLLQ\n"
+                        "\n"
+                        "15 11\n"
+                        "***********\n"
+                        "**     *  *\n"
+                        "**   *    *\n"
+                        "* * * **  *\n"
+                        "* *  * *  *\n"
+                        "*    *    *\n"
+                        "* *   * * *\n"
+                        "***   * * *\n"
+                        "*   * * * *\n"
+                        "** **   * *\n"
+                        "*   *     *\n"
+                        "*    ** * *\n"
+                        "*        **\n"
+                        "**   ** * *\n"
+                        "***********\n"
+                        "5 10\n"
+                        "FRF RLL  FLLRRRLRFL FFFQ\n"
+                        "\n"
+                        "12 14\n"
+                        "**************\n"
+                        "*     *    ***\n"
+                        "* *  *    * **\n"
+                        "*            *\n"
+                        "****  * **  **\n"
+                        "* *  *     * *\n"
+                        "*  *         *\n"
+                        "* *    *     *\n"
+                        "***    *  *  *\n"
+                        "*  *   **  ***\n"
+                        "* **   *  *  *\n"
+                        "**************\n"
+                        "11 2\n"
+                        "FLR  FR LRFFF F R LL  RLFRLFR LR FFRR RR RFRL   LFR F  LLF LFLLRFR  LRLRLRLRF FLRFL  F F FQ\n"
+                        "\n"
+                        "21 13\n"
+                        "*************\n"
+                        "** *   *    *\n"
+                        "*  *      ***\n"
+                        "*        *  *\n"
+                        "* * ***     *\n"
+                        "*     *  ****\n"
+                        "*     *     *\n"
+                        "** **    ** *\n"
+                        "*     ** ****\n"
+                        "*    **  *  *\n"
+                        "** *  *   ***\n"
+                        "**  *       *\n"
+                        "*        *  *\n"
+                        "** **       *\n"
+                        "**   **     *\n"
+                        "*       *   *\n"
+                        "*  **   * * *\n"
+                        "*      * *  *\n"
+                        "* *      ** *\n"
+                        "**   * **  **\n"
+                        "*************\n"
+                        "7 6\n"
+                        "LRL   LRRLFRF  FLR RRFFR  RF RR RFF FFL FQ\n");
+  std::ostringstream oss;
+  solve_uva_problem(iss, oss);
+  EXPECT_EQ("11 5 E\n"
+            "\n"
+            "2 10 N\n"
+            "\n"
+            "11 2 S\n"
+            "\n"
+            "7 2 S\n",
+            oss.str());
+}
+
 #endif
