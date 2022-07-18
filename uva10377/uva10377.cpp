@@ -67,6 +67,11 @@ using namespace std;
 #include <gmock/gmock.h>
 #endif
 
+#define KEY_RIGHT   'R'
+#define KEY_LEFT    'L'
+#define KEY_FORWARD 'F'
+#define KEY_QUIT    'Q'
+
 struct RobotNode {
   int row;
   int column;
@@ -87,11 +92,12 @@ public:
   ~Maze() = default;
 
   void InitMap(char event);
-  void EventProcess(char event);
+  int EventProcess(char event);
+  void SetPosition();
 
 private:
-  RobotNode Robot_node_;
- // std::vector<int> combination_;
+  RobotNode robot_node_;
+  vector<vector<int>> maze_map_;
  // std::map<int, string> mapValue;
   int robot_dir_;
 };
@@ -100,27 +106,52 @@ Maze::Maze(string input) {
     
 }
 
-Maze::EventProcess(char event) {
-    switch (event) {
-        case Key_Right: 
-            Robot_node_.orientation  = (Robot_node_.orientation + 1) % 4;
-            //SetPosition(3, 0);  break;
-        case Key_Left:  
-            Robot_node_.orientation  = (Robot_node_.orientation + 3) % 4;
-            //SetPosition(3, 0); break;
-        case Key_Forward:    
-            SetPosition(0, -3);
-        //case Key_Quit:  
-            //SetPosition(0, 3);  break;
+void Maze::SetPosition() {
+    switch (robot_node_.orientation) {
+        case NORTH:
+            //if not wall
+            robot_node_.row--;
+            break;
+        case EAST:
+            //if not wall
+            robot_node_.column++;
+            break;
+        case SOUTH:
+            //if not wall
+            robot_node_.row++;
+            break;
+        case WEST:
+            //if not wall
+            robot_node_.column--;
+            break;
     }
+}
 
+int Maze::EventProcess(char event) {
+    int ret = 0;
+
+    switch (event) {
+        case KEY_RIGHT: 
+            robot_node_.orientation  = (robot_node_.orientation + 1) % 4;
+            break;
+        case KEY_LEFT:  
+            robot_node_.orientation  = (robot_node_.orientation + 3) % 4;
+            break;
+        case KEY_FORWARD:    
+            SetPosition();
+            break;
+        case KEY_QUIT:  
+            ret = 1;
+            break;
+    }
+    return ret;
 }
 #endif
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int loop;
-  char quit;
+  bool quit;
 
   getline(is, input);
   loop = stoi(input);
@@ -135,23 +166,34 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
             os << input << std::endl;
 
             if(input.empty())
-                continue;
+                getline(is, input);
 
+            /**/
+            //init map
+            getline(is, input);
+            //for (int i = 0; i < vect.size(); i++) 
+            //{
+            //    for (int j = 0; j < vect[i].size(); j++)
+            //    {
+            //        cout << vect[i][j] << " ";
+            //    }    
+            //    cout << endl;
+            //}
+
+            
+            //step 
+            getline(is, input);
             //os << " step3 " << std::endl;
-            for (const char c : input)
-            {
+            for (const char c : input) {
                 //os << " "<< c ;
-                if (c == 'Q')
-                {
-                    quit = 'Q';
+                if (maze->EventProcess(c)) {
+                    quit = true;
                 }
             }
             //os << std::endl;
 
-            if (quit == 'Q')
-            {
+            if (quit == true)
                 break;
-            }
             
             //{
             //}
