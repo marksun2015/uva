@@ -71,6 +71,7 @@ using namespace std;
 #define KEY_LEFT    'L'
 #define KEY_FORWARD 'F'
 #define KEY_QUIT    'Q'
+#define WALL '*'
 
 struct RobotNode {
   int row;
@@ -85,6 +86,13 @@ enum Direction {
     WEST = 3,
 };
 
+std::map<int, string> mapValue = {
+    {NORTH, "N"},
+    {EAST , "E"},
+    {SOUTH, "S"},
+    {WEST , "W"}
+};
+
 class Maze {
 public:
   explicit Maze(string input);
@@ -97,12 +105,12 @@ public:
   std::vector<std::vector<char>> &getMap() { return maze_map_; }
   RobotNode &getRobotNode() { return robot_node_; }
   void showMap();
-  void showRobot();
+  void showRobot(std::ostream &os);
 
 private:
   RobotNode robot_node_;
   vector<vector<char>> maze_map_;
- // std::map<int, string> mapValue;
+  
   int robot_dir_;
 };
 
@@ -111,8 +119,9 @@ Maze::Maze(string input) {
 }
 
 bool Maze::isWall(int row, int column) {
-  if (maze_map_[row][column] == '*')
+  if (maze_map_[row-1][column-1] == WALL) {
     return true;
+  }
   return false; 
 }
 
@@ -123,7 +132,7 @@ void Maze::SetPosition() {
                 robot_node_.row--;
             break;
         case EAST:
-            if (!isWall(robot_node_.row, robot_node_.column-1))
+            if (!isWall(robot_node_.row, robot_node_.column+1))
                 robot_node_.column++;
             break;
         case SOUTH:
@@ -131,7 +140,7 @@ void Maze::SetPosition() {
                 robot_node_.row++;
             break;
         case WEST:
-            if (!isWall(robot_node_.row, robot_node_.column+1))
+            if (!isWall(robot_node_.row, robot_node_.column-1))
                 robot_node_.column--;
             break;
     }
@@ -143,18 +152,14 @@ int Maze::EventProcess(char event) {
     switch (event) {
         case KEY_RIGHT: 
             robot_node_.orientation  = (robot_node_.orientation + 1) % 4;
-            std::cout << " eventR: " << robot_node_.orientation << std::endl;
             break;
         case KEY_LEFT:  
             robot_node_.orientation  = (robot_node_.orientation + 3) % 4;
-            std::cout << " eventL: " << robot_node_.orientation << std::endl;
             break;
         case KEY_FORWARD:    
-            std::cout << " eventF: " << robot_node_.orientation << std::endl;
             SetPosition();
             break;
         case KEY_QUIT:  
-            std::cout << " eventQ: " << robot_node_.orientation << std::endl;
             ret = 1;
             break;
     }
@@ -171,92 +176,67 @@ void Maze::showMap() {
     } 
 }
 
-void Maze::showRobot() {
-    std::cout << "showRobot" << std::endl;
-    std::cout << "Robot Position = " 
-      << "(row: "<< robot_node_.row 
-      << " ,column: "<< robot_node_.column 
-      << ")" << std::endl;
+void Maze::showRobot(std::ostream &os) {
+  os << robot_node_.row << " "
+     << robot_node_.column << " "
+     << mapValue[robot_node_.orientation] << std::endl;
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
   std::string input;
   int loop;
   bool quit;
-  //std::stringstream ss;
 
   getline(is, input);
-  //ss.str(input);
-  //ss >> loop;
   loop = stoi(input);
-  os << " loop: " << loop << std::endl;
   while (loop--) {
-    os << " step1 " << loop << std::endl;
-    std::shared_ptr<Maze> maze = std::make_shared<Maze>(input);
-    {
-        //while (1) {
-            os << " step2 " << std::endl;
-            getline(is, input);
-            os << input << std::endl;
+  std::shared_ptr<Maze> maze = std::make_shared<Maze>(input);
+  {
+      getline(is, input);
+      if(input.empty())
+          getline(is, input);
 
-            if(input.empty())
-                getline(is, input);
-            
-            int row, column;
-            std::stringstream ss;
-            //getline(is, input);
-            ss.str(input);
-            ss >> row; 
-            ss >> column;
-            os << " row " << row << std::endl;
-            os << " column " << column << std::endl;
-        
-            std::vector<std::vector<char>> &map = maze->getMap();
-            //init map
-            while(row--) {
-                getline(is, input);
-                std::vector<char> v(input.begin(), input.end());
-                map.push_back(v);
-            }
-            maze->showMap();
+      int row, column;
+      std::stringstream ss;
+      //getline(is, input);
+      ss.str(input);
+      ss >> row; 
+      ss >> column;
 
-            RobotNode &robot = maze->getRobotNode();
-            getline(is, input);
-            std::stringstream ss2;
-            ss2.str(input);
-            ss2 >> robot.row; 
-            ss2 >> robot.column; 
-            maze->showRobot();
-            
-            while(getline(is, input)) {
-                //os << " input " << input << std::endl;
-                for (const char c : input) {
-                    os << " "<< c ;
-                    if (maze->EventProcess(c)) {
-                        quit = true;
-                        os << "quit true..." <<std::endl;
-                    }
-                    maze->showRobot();
-                }
-                //os << std::endl;
-                if (quit == true) {
-                        os << "quit true...break" <<std::endl;
-                        break;
-                }
+      std::vector<std::vector<char>> &map = maze->getMap();
+      //init map
+      while(row--) {
+          getline(is, input);
+          std::vector<char> v(input.begin(), input.end());
+          map.push_back(v);
+      }
+      maze->showMap();
 
-            }
-            maze->showRobot();
-                
-               
-           
-            os << "quit true...break loop " << loop <<std::endl;
-            //{
-            //}
-        //} //while
+      RobotNode &robot = maze->getRobotNode();
+      getline(is, input);
+      std::stringstream ss2;
+      ss2.str(input);
+      ss2 >> robot.row; 
+      ss2 >> robot.column; 
+
+      while(getline(is, input)) {
+          //os << " input " << input << std::endl;
+          for (const char c : input) {
+              //os << " "<< c ;
+              if (maze->EventProcess(c)) {
+                  quit = true;
+              }
+          }
+
+          if (quit == true) {
+              break;
+          }
+
+      }
     }
-    //loop --;
-    os << " loop--: " << loop << std::endl;
-  } //while
+    maze->showRobot(os);
+    os << std::endl;
+  } //while loop --
 }
 
 int main(int argc, char **argv) {
@@ -287,10 +267,12 @@ TEST(uva10377, test_string1) {
 
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
-  EXPECT_EQ("5 6 W\n",oss.str());
+  EXPECT_EQ("5 6 W\n"
+            "\n",
+            oss.str());
 }
 
-#if 0
+#if 1
 TEST(uva10377, test_string2) {
   std::istringstream iss("4\n"
                         "\n"
