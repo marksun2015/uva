@@ -61,7 +61,7 @@ uva10377 - Maze Traversal
 
 using namespace std;
 
-#define ONLINE_JUDGE
+//#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -95,7 +95,7 @@ std::map<int, string> mapValue = {
 
 class Maze {
 public:
-  explicit Maze(string input);
+  explicit Maze();
   ~Maze() = default;
 
   void InitMap(char event);
@@ -110,12 +110,11 @@ public:
 private:
   RobotNode robot_node_;
   vector<vector<char>> maze_map_;
-  
-  int robot_dir_;
 };
 
-Maze::Maze(string input) {
+Maze::Maze() {
     
+    std::cout<< "Maze " << robot_node_.row << "," << robot_node_.column;
 }
 
 bool Maze::isWall(int row, int column) {
@@ -190,52 +189,56 @@ void solve_uva_problem(std::istream &is, std::ostream &os) {
   getline(is, input);
   loop = stoi(input);
   while (loop--) {
-  std::shared_ptr<Maze> maze = std::make_shared<Maze>(input);
-  {
-      getline(is, input);
-      if(input.empty())
+      std::shared_ptr<Maze> maze = std::make_shared<Maze>();
+      {
           getline(is, input);
+          if(input.empty())
+              getline(is, input);
 
-      int row, column;
-      std::stringstream ss;
-      //getline(is, input);
-      ss.str(input);
-      ss >> row; 
-      ss >> column;
+          int row, column;
+          std::stringstream ss;
+          //getline(is, input);
+          ss.str(input);
+          ss >> row; 
+          ss >> column;
 
-      std::vector<std::vector<char>> &map = maze->getMap();
-      //init map
-      while(row--) {
+          std::vector<std::vector<char>> &map = maze->getMap();
+          //init map
+          while(row--) {
+              getline(is, input);
+              std::vector<char> v(input.begin(), input.end());
+              map.push_back(v);
+          }
+          //maze->showMap();
+
+          RobotNode &robot = maze->getRobotNode();
           getline(is, input);
-          std::vector<char> v(input.begin(), input.end());
-          map.push_back(v);
-      }
-      maze->showMap();
+          std::stringstream ss2;
+          ss2.str(input);
+          ss2 >> robot.row; 
+          ss2 >> robot.column; 
+          robot.orientation = NORTH; 
 
-      RobotNode &robot = maze->getRobotNode();
-      getline(is, input);
-      std::stringstream ss2;
-      ss2.str(input);
-      ss2 >> robot.row; 
-      ss2 >> robot.column; 
-
-      while(getline(is, input)) {
-          //os << " input " << input << std::endl;
-          for (const char c : input) {
-              //os << " "<< c ;
-              if (maze->EventProcess(c)) {
-                  quit = true;
+          while(getline(is, input)) {
+              //os << " input " << input << std::endl;
+              for (const char c : input) {
+                  //os << " "<< c ;
+                  if (maze->EventProcess(c)) {
+                      quit = true;
+                  }
               }
+
+              if (quit == true) {
+                  break;
+              }
+
           }
 
-          if (quit == true) {
-              break;
+          maze->showRobot(os);
+          if(loop != 0)  { 
+              os << std::endl;
           }
-
       }
-    }
-    maze->showRobot(os);
-    os << std::endl;
   } //while loop --
 }
 
@@ -267,8 +270,7 @@ TEST(uva10377, test_string1) {
 
   std::ostringstream oss;
   solve_uva_problem(iss, oss);
-  EXPECT_EQ("5 6 W\n"
-            "\n",
+  EXPECT_EQ("5 6 W\n",
             oss.str());
 }
 
