@@ -59,7 +59,7 @@ uva10377 - Maze Traversal
 #include <stack>
 #include <string>
 
-//#define ONLINE_JUDGE
+#define ONLINE_JUDGE
 
 #ifndef ONLINE_JUDGE
 #include <gmock/gmock.h>
@@ -84,11 +84,11 @@ enum Direction {
   WEST = 3,
 };
 
-std::map<int, std::string> mapValue = {
-  {NORTH, "N"},
-  {EAST , "E"},
-  {SOUTH, "S"},
-  {WEST , "W"}
+std::map<int, char> mapValue = {
+  {NORTH, 'N'},
+  {EAST , 'E'},
+  {SOUTH, 'S'},
+  {WEST , 'W'}
 };
 
 class Maze {
@@ -97,13 +97,13 @@ public:
   ~Maze() = default;
 
   bool isWall(int row, int column);
-  void SetPosition();
+  void setPosition();
   int eventProcess(char event);
   void stepProcess(std::istream &is);
   void initMap(std::istream &is);
   void initRobot(std::istream &is);
-  void showMap(std::ostream &os);
   void showRobot(std::ostream &os);
+  void showMap(std::ostream &os);
   
   std::vector<std::vector<char>> &getMap() { return maze_map_; }
   RobotNode &getRobotNode() { return robot_node_; }
@@ -119,50 +119,61 @@ Maze::Maze() {
 }
 
 bool Maze::isWall(int row, int column) {
-  if (maze_map_[row-1][column-1] == WALL) {
+  std::vector<std::vector<char>> &map = getMap();
+  RobotNode &robot = getRobotNode();
+
+  if (map[row-1][column-1] == WALL) {
     return true;
   }
+
+  map[robot.row-1][robot.column-1] = ' ';
   return false; 
 }
 
-void Maze::SetPosition() {
-  switch (robot_node_.orientation) {
+void Maze::setPosition() {
+  RobotNode &robot = getRobotNode();
+ 
+  switch (robot.orientation) {
     case NORTH:
-      if (!isWall(robot_node_.row-1, robot_node_.column))
-        robot_node_.row--;
+      if (!isWall(robot.row-1, robot.column))
+        robot.row--;
       break;
     case EAST:
-      if (!isWall(robot_node_.row, robot_node_.column+1))
-        robot_node_.column++;
+      if (!isWall(robot.row, robot.column+1))
+        robot.column++;
       break;
     case SOUTH:
-      if (!isWall(robot_node_.row+1, robot_node_.column))
-        robot_node_.row++;
+      if (!isWall(robot.row+1, robot.column))
+        robot.row++;
       break;
     case WEST:
-      if (!isWall(robot_node_.row, robot_node_.column-1))
-        robot_node_.column--;
+      if (!isWall(robot.row, robot.column-1))
+        robot.column--;
       break;
   }
 }
 
 int Maze::eventProcess(char event) {
   int ret = 0;
+  RobotNode &robot = getRobotNode();
+  std::vector<std::vector<char>> &map = getMap();
 
   switch (event) {
     case KEY_RIGHT: 
-      robot_node_.orientation  = (robot_node_.orientation + 1) % 4;
+      robot.orientation  = (robot.orientation + 1) % 4;
       break;
     case KEY_LEFT:  
-      robot_node_.orientation  = (robot_node_.orientation + 3) % 4;
+      robot.orientation  = (robot.orientation + 3) % 4;
       break;
     case KEY_FORWARD:    
-      SetPosition();
+      setPosition();
       break;
     case KEY_QUIT:  
-      ret = 1;
+      ret = -1;
       break;
   }
+
+  map[robot.row-1][robot.column-1] = mapValue[robot.orientation];
   return ret;
 }
 
@@ -191,6 +202,7 @@ void Maze::initRobot(std::istream &is) {
   std::string input;
   std::stringstream ss;
 
+  std::vector<std::vector<char>> &map = getMap();
   RobotNode &robot = getRobotNode();
 
   getline(is, input);
@@ -198,13 +210,17 @@ void Maze::initRobot(std::istream &is) {
   ss >> robot.row; 
   ss >> robot.column; 
   robot.orientation = NORTH; 
+
+  map[robot.row-1][robot.column-1] = mapValue[robot.orientation];
+  //showMap();
 }
 
 void Maze::stepProcess(std::istream &is) {
   std::string input;
   while(getline(is, input)) {
     for (const char c : input) {
-      if (eventProcess(c)) {
+      //showMap();
+      if (eventProcess(c) == -1) {
         return; 
       }
     }
@@ -213,7 +229,8 @@ void Maze::stepProcess(std::istream &is) {
 
 void Maze::showMap(std::ostream &os) {
   os << "showMap" << std::endl;
-  for(auto& row:maze_map_){
+  std::vector<std::vector<char>> &map = getMap();
+  for(auto& row:map){
     for(auto& col:row){
       os << " "<< col ;
     }
@@ -222,9 +239,10 @@ void Maze::showMap(std::ostream &os) {
 }
 
 void Maze::showRobot(std::ostream &os) {
-  os << robot_node_.row << " "
-     << robot_node_.column << " "
-     << mapValue[robot_node_.orientation] << std::endl;
+  RobotNode &robot = getRobotNode();
+  os << robot.row << " "
+     << robot.column << " "
+     << mapValue[robot.orientation] << std::endl;
 }
 
 void solve_uva_problem(std::istream &is, std::ostream &os) {
