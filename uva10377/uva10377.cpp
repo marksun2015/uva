@@ -100,10 +100,12 @@ public:
   void setPosition();
   int eventProcess(char event);
   void stepProcess(std::istream &is);
+ 
   void initMap(std::istream &is);
   void initRobot(std::istream &is);
-  void showRobot(std::ostream &os);
+
   void showMap(std::ostream &os);
+  void showRobot(std::ostream &os);
   
   std::vector<std::vector<char>> &getMap() { return maze_map_; }
   RobotNode &getRobotNode() { return robot_node_; }
@@ -177,6 +179,18 @@ int Maze::eventProcess(char event) {
   return ret;
 }
 
+void Maze::stepProcess(std::istream &is) {
+  std::string input;
+  while(getline(is, input)) {
+    for (const char c : input) {
+      //showMap();
+      if (eventProcess(c) == -1) {
+        return; 
+      }
+    }
+  }
+}
+
 void Maze::initMap(std::istream &is) {
   std::string input;
   std::stringstream ss;
@@ -215,20 +229,8 @@ void Maze::initRobot(std::istream &is) {
   //showMap();
 }
 
-void Maze::stepProcess(std::istream &is) {
-  std::string input;
-  while(getline(is, input)) {
-    for (const char c : input) {
-      //showMap();
-      if (eventProcess(c) == -1) {
-        return; 
-      }
-    }
-  }
-}
-
 void Maze::showMap(std::ostream &os) {
-  os << "showMap" << std::endl;
+  os << "==== showMap ====" << std::endl;
   std::vector<std::vector<char>> &map = getMap();
   for(auto& row:map){
     for(auto& col:row){
