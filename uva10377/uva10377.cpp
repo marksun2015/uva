@@ -192,6 +192,7 @@ void Maze::stepProcess(std::istream &is, std::ostream &os) {
 }
 
 void Maze::initMap(std::istream &is, std::ostream &os) {
+  std::vector<std::vector<char>> &map = getMap();
   std::string input;
   std::stringstream ss;
   int row;
@@ -203,7 +204,6 @@ void Maze::initMap(std::istream &is, std::ostream &os) {
   ss.str(input);
   ss >> row;
 
-  std::vector<std::vector<char>> &map = getMap();
   while (row--) {
     getline(is, input);
     std::vector<char> v(input.begin(), input.end());
